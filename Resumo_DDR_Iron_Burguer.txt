@@ -1,0 +1,134 @@
+IRON BURGUER - RESUMO DO DDR (DOCUMENTO DE DEFINIÇÃO DE REQUISITOS)
+Centro Universitário de Brasília (CEUB) - Ciência de Dados e Machine Learning
+Disciplina: Análise e Projeto de Sistemas (APS) - Professor: Eduardo Castro - 2026
+Equipe: Gabriel Francisco Pires de Assis, Guilherme Mendes Carlos,
+Pedro Rebello Borges de Barros, Pedro Vargas dos Santos e Silva
+
+======================================================================
+PARA QUE SERVE O DDR
+======================================================================
+O DDR parte do DAN e organiza os requisitos do sistema de gestão de
+pedidos do Iron Burguer. Ele orienta quem vai programar, testar e
+homologar o sistema, e traz os modelos UML de casos de uso e de classes.
+
+======================================================================
+1. INTRODUÇÃO
+======================================================================
+Definições:
+- Ator: quem interage com o sistema. No Iron Burguer: Atendente,
+  Produção e Gerente.
+- Caso de uso: conjunto de ações que gera um resultado de valor para o
+  ator. Cada caso de uso corresponde a uma funcionalidade do DAN.
+- Include: comportamento obrigatório, sempre executado.
+- Extend: comportamento opcional, executado só quando uma condição
+  ocorre.
+
+Siglas:
+- UCx: caso de uso número x
+- Fx: funcionalidade identificada no DAN
+- Px / Sx: problema e solução específicos do DAN
+- RNGx: regra de negócio
+A numeração começa em 1 e cresce conforme surgem novos requisitos.
+
+======================================================================
+2. DIAGRAMA DE CASO DE USO E EAS
+======================================================================
+A EAS do DAN serve de base para o diagrama de caso de uso.
+
+O diagrama tem 3 atores e 9 casos de uso.
+- O UC3 (Registrar Pedido) INCLUI o UC4 (Registrar Pagamento), porque o
+  pedido só vai para a produção depois de pago.
+- O UC5 (Alterar/Cancelar Pedido) ESTENDE o UC3, porque só acontece se
+  o cliente mudar de ideia.
+- O UC7 (Registrar Entrega) é compartilhado por Atendente e Produção.
+
+Rastreabilidade (fase - funcionalidade -> caso de uso - ator):
+- Entrada:       F1 Cadastrar Produto         -> UC1 - Gerente
+- Entrada:       F2 Cadastrar Ingrediente     -> UC2 - Gerente
+- Entrada:       F3 Registrar Pedido          -> UC3 - Atendente
+- Entrada:       F4 Alterar/Cancelar Pedido   -> UC5 - Atendente
+- Processamento: F6 Registrar Pagamento       -> UC4 - Atendente
+- Processamento: F5 Controlar Fila de Produção -> UC6 - Produção
+- Saída:         F7 Registrar Entrega         -> UC7 - Atendente/Produção
+- Saída:         F8 Relatório de Pedidos e Entregas -> UC8 - Gerente
+- Saída:         F9 Relatório de Fluxo de Caixa     -> UC9 - Gerente
+
+======================================================================
+3. PRIORIZAÇÃO
+======================================================================
+Dependências (o que precisa existir antes):
+- UC1 Cadastrar Produto: nenhuma
+- UC2 Cadastrar Ingrediente: UC1
+- UC3 Registrar Pedido: UC1 e UC2
+- UC5 Alterar/Cancelar Pedido: UC3
+- UC4 Registrar Pagamento: UC3
+- UC6 Controlar Fila de Produção: UC4
+- UC7 Registrar Entrega: UC6
+- UC8 Relatório de Pedidos e Entregas: UC7
+- UC9 Relatório de Fluxo de Caixa: UC4
+
+Priorização MoSCoW e ordem de construção (incrementos de 1 a 5).
+Nenhum caso de uso fica num incremento anterior ao daquele de que ele
+depende; dentro do mesmo incremento, a dependência é construída primeiro.
+- Incremento 1: UC1, UC2 (Must have)
+- Incremento 2: UC3, UC4 (Must have)
+- Incremento 3: UC6, UC7 (Must have)
+- Incremento 4: UC5, UC8 (Should have)
+- Incremento 5: UC9 (Could have)
+
+======================================================================
+4. DIAGRAMA DE CLASSE
+======================================================================
+O diagrama tem 11 classes, com o Pedido no centro.
+
+Classes:
+- Funcionario: atendente, produção e gerente, por perfil de acesso.
+  (UC1 a UC9)
+- Cliente: quem faz o pedido; identificação opcional, usada na entrega.
+  (UC3, UC7)
+- Pedido: número sequencial (senha), data/hora, situação e valor total.
+  (UC3, UC5, UC6, UC7)
+- ItemPedido: cada item do pedido, com quantidade, preço unitário e
+  observação. (UC3, UC5)
+- Produto: item do cardápio, com preço e disponibilidade. (UC1, UC3)
+- Hamburguer: tipo de Produto que indica a carne (peixe, frango ou boi).
+  (UC1, UC3)
+- Batata: tipo de Produto que indica a batata (comum ou rústica).
+  (UC1, UC3)
+- Bebida: tipo de Produto que indica a bebida e o volume. (UC1, UC3)
+- Ingrediente: insumo com quantidade em estoque e quantidade mínima.
+  (UC2, UC6)
+- Pagamento: forma de pagamento, valor pago e troco. (UC4, UC9)
+- Entrega: registro da entrega, que impede duplicidade. (UC7, UC8)
+
+Relacionamentos (tipo - multiplicidade):
+- Funcionario - Pedido: associação, 1 : 0..*
+  Cada pedido é registrado por um único funcionário.
+- Cliente - Pedido: associação, 0..1 : 0..*
+  Identificar o cliente é opcional.
+- Pedido - ItemPedido: composição, 1 : 1..*
+  Os itens não existem sem o pedido.
+- ItemPedido - Produto: associação, 0..* : 1
+  Cada item se refere a um produto do cardápio.
+- Produto - Ingrediente: agregação, 0..* : 1..*
+  O produto usa ingredientes, que têm o estoque baixado na produção.
+- Pedido - Pagamento: associação, 1 : 0..1
+  Cada pedido tem um único pagamento, feito antes da produção.
+- Pedido - Entrega: associação, 1 : 0..1
+  Cada pedido tem um único registro de entrega.
+- Produto - Hamburguer / Batata / Bebida: generalização
+  Herdam código, nome, preço e disponibilidade.
+
+Regras de negócio (definidas no DAN) refletidas no modelo:
+- RNG1: cada lanche combina 1 hambúrguer com 1 batata, podendo incluir
+  1 bebida (representado por Hamburguer, Batata e Bebida).
+- RNG7: o pedido só vai para a produção depois do pagamento.
+- RNG9 e RNG10: o pedido só é entregue quando está "Pronto", e uma
+  única vez.
+
+======================================================================
+IDEIA CENTRAL
+======================================================================
+Tudo é rastreável: problema (P) -> solução (S) -> funcionalidade (F)
+-> caso de uso (UC) -> classe. Cada elemento do modelo pode ser ligado
+a um problema real do food truck descrito no DAN.

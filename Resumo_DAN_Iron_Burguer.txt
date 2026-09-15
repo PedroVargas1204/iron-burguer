@@ -1,0 +1,140 @@
+IRON BURGUER - RESUMO DO DAN (DOCUMENTO DE ANÁLISE DE NEGÓCIO)
+Centro Universitário de Brasília (CEUB) - Ciência de Dados e Machine Learning
+Disciplina: Análise e Projeto de Sistemas (APS) - Professor: Eduardo Castro - 2026
+Equipe: Gabriel Francisco Pires de Assis, Guilherme Mendes Carlos,
+Pedro Rebello Borges de Barros, Pedro Vargas dos Santos e Silva
+
+======================================================================
+PARA QUE SERVE O DAN
+======================================================================
+O DAN explica o negócio e o problema, e define o que o sistema precisa
+fazer. É a base para o DDR (Documento de Definição de Requisitos).
+
+======================================================================
+1. A EMPRESA
+======================================================================
+O Iron Burguer é um food truck em Brasília/DF, do proprietário Zé das
+Couves. Vende hambúrgueres de peixe, frango ou boi, com batata comum ou
+rústica e, se o cliente quiser, suco de caixinha ou refrigerante.
+O pagamento pode ser em dinheiro, cartão ou PIX.
+
+O local e o horário são divulgados num site, então a demanda chega em
+picos. Só 2 funcionários cuidam de toda a operação.
+
+Áreas da empresa:
+- Gerência: cardápio, preços, relatórios e compra de ingredientes.
+- Atendimento (caixa): recebe o pedido e o pagamento e repassa à cozinha.
+- Produção (cozinha): verifica ingredientes e prepara o pedido.
+- Divulgação: mantém o site com local e horário.
+
+Partes interessadas: cliente, atendimento, produção, gerência e
+fornecedor. O responsável pelo processo é a Gerência.
+
+======================================================================
+2. O PROBLEMA
+======================================================================
+Como funciona hoje (As Is):
+- O pedido é anotado em papel ou memorizado, sem padrão e sem número.
+- Não se sabe o que está disponível; o cliente pode pedir item esgotado.
+- O valor é calculado à mão e o pagamento não fica ligado ao pedido.
+- A cozinha recebe os pedidos sem fila organizada.
+- A entrega é feita chamando o cliente em voz alta, sem registro.
+- Resultado: pedidos errados, clientes fora da ordem e pedidos
+  entregues duas vezes.
+- Os relatórios da gerência são estimados, então a compra de
+  ingredientes é feita sem base confiável.
+
+Grande problema:
+NÃO TER CONTROLE SOBRE OS PEDIDOS REALIZADOS, PRODUZIDOS, ENTREGUES E
+PAGOS NO FOOD TRUCK.
+
+Problemas específicos:
+- Entrada
+  P1 - Não saber quais produtos e ingredientes estão disponíveis.
+  P2 - Registro manual e impreciso do pedido.
+- Processamento
+  P3 - Falta de controle da fila e da situação dos pedidos.
+  P4 - Pagamento não associado ao pedido.
+- Saída
+  P5 - Falta de controle da entrega.
+  P6 - Dificuldade em obter informações gerenciais.
+
+======================================================================
+3. A SOLUÇÃO
+======================================================================
+Grande solução:
+PERMITIR O CONTROLE DOS PEDIDOS REALIZADOS, PRODUZIDOS, ENTREGUES E
+PAGOS, DE FORMA ORGANIZADA E COORDENADA PELA GERÊNCIA.
+
+Valor para cada parte interessada:
+- Cliente: receber o que pediu, na ordem de chegada.
+- Atendimento: registrar rápido, com valor calculado automaticamente.
+- Produção: ver a fila organizada e produzir na ordem certa.
+- Gerência: ver vendas e fluxo de caixa para comprar na medida certa.
+
+Como vai funcionar (To Be):
+1. O atendente registra o pedido escolhendo só itens disponíveis.
+   O sistema gera uma senha, calcula o total e deixa o pedido "Aberto".
+   Enquanto está "Aberto", o pedido pode ser alterado ou cancelado.
+2. Com o pagamento confirmado, o pedido passa para "Recebido" e entra
+   na fila de produção.
+3. A cozinha produz na ordem da senha e muda a situação para
+   "Em produção" e depois "Pronto". O estoque é baixado automaticamente.
+4. A entrega é registrada uma única vez e o pedido fica "Entregue".
+5. A gerência consulta relatórios por período.
+
+Sequência de situações do pedido:
+Aberto -> Recebido -> Em produção -> Pronto -> Entregue
+
+Objetivos específicos, funcionalidades e regras de negócio:
+- S1 - Obter dados dos produtos e ingredientes disponíveis
+  F1 - Cadastrar Produto / F2 - Cadastrar Ingrediente
+  RNG1 - Cada lanche combina 1 hambúrguer com 1 batata; bebida opcional.
+  RNG2 - O produto só aparece para venda se houver ingredientes.
+- S2 - Registrar o pedido de forma padronizada
+  F3 - Registrar Pedido / F4 - Alterar ou Cancelar Pedido
+  RNG3 - Todo pedido recebe um número sequencial (senha).
+  RNG4 - Só pode alterar ou cancelar enquanto o pedido estiver "Aberto".
+- S3 - Controlar a fila e a situação dos pedidos
+  F5 - Controlar Fila de Produção
+  RNG5 - Os pedidos são produzidos na ordem da senha.
+  RNG6 - A situação segue a sequência Aberto, Recebido, Em produção,
+         Pronto e Entregue.
+- S4 - Controlar o pagamento dos pedidos
+  F6 - Registrar Pagamento
+  RNG7 - O pedido só vai para a produção após o pagamento.
+  RNG8 - Formas aceitas: dinheiro, cartão e PIX.
+- S5 - Controlar a entrega dos pedidos
+  F7 - Registrar Entrega do Pedido
+  RNG9 - Só pode entregar se o pedido estiver "Pronto".
+  RNG10 - Cada pedido só pode ser entregue uma vez.
+- S6 - Obter informações sobre pedidos, entregas e valores
+  F8 - Relatório de Pedidos e Entregas / F9 - Relatório de Fluxo de Caixa
+  RNG11 - Os relatórios são emitidos por período.
+  RNG12 - O fluxo de caixa considera só pedidos pagos, por forma de
+          pagamento.
+
+Matriz de rastreabilidade (problema -> solução -> funcionalidade):
+- Entrada:       P1 -> S1 -> F1, F2
+- Entrada:       P2 -> S2 -> F3, F4
+- Processamento: P3 -> S3 -> F5
+- Processamento: P4 -> S4 -> F6
+- Saída:         P5 -> S5 -> F7
+- Saída:         P6 -> S6 -> F8, F9
+
+Estrutura Analítica do Software (EAS):
+- Entrada: F1, F2, F3, F4
+- Processamento: F5, F6
+- Saída: F7, F8, F9
+
+Usuários e funcionalidades:
+- Atendente: F3, F4, F6, F7
+- Produção: F5, F7
+- Gerente: F1, F2, F8, F9
+
+======================================================================
+IDEIA CENTRAL
+======================================================================
+Cada funcionalidade do sistema nasce de um problema real do food truck.
+Os usuários e as funcionalidades definidos aqui viram os atores e os
+casos de uso do DDR.
