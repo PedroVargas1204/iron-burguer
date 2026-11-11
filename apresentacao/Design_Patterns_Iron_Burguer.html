@@ -1,0 +1,514 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Design Patterns - Iron Burguer (APS)</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600&family=Public+Sans:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:#15130F;color:#D9CFC2;
+    font-family:'Public Sans',Verdana,sans-serif;overflow:hidden}
+  /* O slide tem 1920px fixos e quase sempre é maior que a janela. Centralizar por
+     grid falharia, porque um item maior que a área transborda para a direita; por
+     isso o palco ancora no meio e o próprio slide se desloca com translate. */
+  #palco{position:absolute;inset:0 0 46px 0;overflow:hidden}
+  #tela{position:absolute;left:50%;top:50%;width:1920px;height:1080px;
+    transform-origin:center center;transform:translate(-50%,-50%);
+    box-shadow:0 10px 50px rgba(0,0,0,.6)}
+  /* Cada slide traz display:flex ou display:grid no atributo style, que vence
+     qualquer regra do CSS. Por isso a troca de slide usa opacidade, não display. */
+  #tela > section{position:absolute;inset:0;opacity:0;pointer-events:none;overflow:hidden}
+  #tela > section.on{opacity:1;pointer-events:auto;z-index:1}
+  /* O formato de slide não usa as margens padrão do navegador: todo espaçamento
+     vem de gap e padding inline. Sem este reset o conteúdo transborda o slide. */
+  #tela h1,#tela h2,#tela h3,#tela h4,#tela p,#tela ul,#tela ol,#tela figure{margin:0}
+  #tela ul,#tela ol{padding-left:1.1em}
+  #tela table{border-collapse:collapse}
+  #tela hr{margin:0;border:0;border-top:1px solid currentColor}
+  /* conectores do runtime de slides, redesenhados em CSS comum */
+  x-connector{display:inline-block;height:0;border-top-style:solid;
+    border-top-color:currentColor;position:relative;align-self:center;flex:none}
+  x-connector::after{content:"";position:absolute;right:-2px;top:-8px;
+    border:8px solid transparent;border-left-color:currentColor;border-right:0}
+  #barra{position:fixed;left:0;right:0;bottom:0;height:46px;display:flex;
+    align-items:center;gap:14px;padding:0 16px;background:#1E1B18;
+    border-top:1px solid #3A332C;font-size:13px;z-index:5}
+  #barra button{font:inherit;background:#2A2521;color:#D9CFC2;border:1px solid #3A332C;
+    border-radius:7px;padding:5px 12px;cursor:pointer}
+  #barra button:hover{background:#3A332C}
+  #cont{font-family:'JetBrains Mono',monospace;font-size:12px;color:#9C9287}
+  #dica{margin-left:auto;color:#5A544C;font-size:12px}
+  #notas{position:fixed;left:0;right:0;bottom:46px;max-height:34vh;overflow-y:auto;
+    padding:16px 20px;background:#211D19;border-top:1px solid #3A332C;font-size:14px;
+    line-height:1.6;display:none;z-index:5}
+  #notas.on{display:block}
+  #notas b{display:block;color:#E0702A;font-size:11px;letter-spacing:.1em;
+    text-transform:uppercase;margin-bottom:6px}
+  @media print{
+    html,body{overflow:visible;background:#fff;height:auto}
+    #barra,#notas{display:none!important}
+    #palco{position:static;display:block}
+    #tela{width:1920px;height:auto;transform:none!important;box-shadow:none;
+      position:static;left:auto;top:auto}
+    #tela > section{position:relative;opacity:1!important;page-break-after:always;
+      width:1920px;height:1080px;inset:auto}
+    @page{size:1920px 1080px;margin:0}
+  }
+</style>
+</head>
+<body>
+<div id="palco"><div id="tela">
+<section id="cover" data-section="Abertura e agenda do trabalho sobre padrões de projeto." data-transition="fade" style="background:#1E1B18;color:#FAF6EF;font-family:'Public Sans', Verdana, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;justify-content:space-between">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'Oswald', Arial, sans-serif;font-size:28px;font-weight:500;letter-spacing:6px;text-transform:uppercase;color:#E0702A">UniCEUB · FATECS · Análise e Projeto de Sistemas</p>
+<h1 style="font-family:'Oswald', Arial, sans-serif;font-size:136px;font-weight:700;line-height:1;text-transform:uppercase">Design Patterns</h1>
+<p style="font-size:40px;color:#D9CFC2;width:1300px">Padrões criacionais e comportamentais aplicados ao aplicativo de autoatendimento do Food Truck Iron Burguer</p>
+</div>
+<div style="display:flex;gap:28px;align-items:stretch">
+<div style="flex:1;display:flex;flex-direction:column;gap:10px;background:#2A2521;padding:36px;border-radius:16px;border-left:6px solid #E0702A">
+<h3 style="font-family:'Oswald', Arial, sans-serif;font-size:26px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#E0702A">Componentes do grupo</h3>
+<p style="font-size:28px;color:#FAF6EF">Gabriel Francisco Pires de Assis<br>Guilherme Mendes Carlos<br>Pedro Rebello Borges de Barros<br>Pedro Vargas dos Santos e Silva</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:10px;background:#2A2521;padding:36px;border-radius:16px;border-left:6px solid #3F8C8A">
+<h3 style="font-family:'Oswald', Arial, sans-serif;font-size:26px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#6FBFBC">Categorias escolhidas</h3>
+<p style="font-size:28px;color:#FAF6EF">Criacionais — Prototype e Singleton<br>Comportamentais — Command e State</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;font-size:24px;color:#9C9287">Prof. Eduardo Castro, MSc. · 2º semestre de 2026 · Apresentação em 24 de novembro</p>
+
+</section>
+<section id="agenda" data-transition="fade" style="background:#FAF6EF;color:#1E1B18;font-family:'Public Sans', Verdana, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<h2 style="font-family:'Oswald', Arial, sans-serif;font-size:76px;font-weight:600;line-height:1.1;text-transform:uppercase">Roteiro da apresentação</h2>
+<div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:28px">
+<div style="display:flex;flex-direction:column;gap:12px;background:#FFFFFF;padding:36px;border-radius:16px;border:1px solid #E2DACE">
+<p style="font-family:'Oswald', Arial, sans-serif;font-size:56px;font-weight:700;color:#E0702A">01</p>
+<h3 style="font-size:34px;font-weight:700">Fundamentos</h3>
+<p style="font-size:28px;color:#5A544C">O que é um padrão de projeto e as três categorias do catálogo GoF</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px;background:#FFFFFF;padding:36px;border-radius:16px;border:1px solid #E2DACE">
+<p style="font-family:'Oswald', Arial, sans-serif;font-size:56px;font-weight:700;color:#E0702A">02</p>
+<h3 style="font-size:34px;font-weight:700">Criacionais</h3>
+<p style="font-size:28px;color:#5A544C">Prototype e Singleton: conceito, problema, solução e exemplo</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px;background:#FFFFFF;padding:36px;border-radius:16px;border:1px solid #E2DACE">
+<p style="font-family:'Oswald', Arial, sans-serif;font-size:56px;font-weight:700;color:#3F8C8A">03</p>
+<h3 style="font-size:34px;font-weight:700">Comportamentais</h3>
+<p style="font-size:28px;color:#5A544C">Command e State: conceito, problema, solução e exemplo</p>
+</div>
+</div>
+<div style="display:flex;gap:28px;align-items:center;background:#1E1B18;padding:40px;border-radius:16px">
+<p style="font-family:'Oswald', Arial, sans-serif;font-size:56px;font-weight:700;color:#E0702A;width:120px">04</p>
+<p style="font-size:32px;color:#FAF6EF;flex:1">Quadro comparativo dos quatro padrões, ganhos para o Iron Burguer e referências</p>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;font-size:24px;color:#8A8278">Design Patterns · Iron Burguer · 2 de 15</p>
+
+</section>
+<section id="oque" data-section="O que são padrões de projeto e quais são as categorias do catálogo GoF." data-transition="fade" style="background:#FAF6EF;color:#1E1B18;font-family:'Public Sans', Verdana, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:44px">
+<h2 style="font-family:'Oswald', Arial, sans-serif;font-size:76px;font-weight:600;line-height:1.1;text-transform:uppercase">O que é um padrão de projeto</h2>
+<p style="font-size:42px;line-height:1.35;color:#1E1B18;width:1560px">Uma <b>solução geral e reutilizável</b> para um <b>problema recorrente</b> de projeto de software, dentro de um <b>contexto</b> determinado. Não é código pronto: é a descrição de como organizar classes e objetos para resolver aquele problema.</p>
+<div style="display:flex;gap:28px">
+<div style="flex:1;display:flex;flex-direction:column;gap:10px;background:#FFFFFF;padding:36px;border-radius:16px;border:1px solid #E2DACE">
+<h3 style="font-size:32px;font-weight:700">Origem</h3>
+<p style="font-size:28px;color:#5A544C">Catálogo publicado em 1994 por Gamma, Helm, Johnson e Vlissides — a <i>Gang of Four</i> (GoF), com 23 padrões consagrados.</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:10px;background:#FFFFFF;padding:36px;border-radius:16px;border:1px solid #E2DACE">
+<h3 style="font-size:32px;font-weight:700">Para que servem</h3>
+<p style="font-size:28px;color:#5A544C">Reduzir acoplamento, aumentar a coesão e permitir que o sistema evolua sem reescrever o que já funciona.</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:10px;background:#FFFFFF;padding:36px;border-radius:16px;border:1px solid #E2DACE">
+<h3 style="font-size:32px;font-weight:700">Vocabulário comum</h3>
+<p style="font-size:28px;color:#5A544C">Dizer “aqui usamos um Observer” comunica uma estrutura inteira à equipe em duas palavras.</p>
+</div>
+</div>
+<div style="display:flex;gap:28px;align-items:center;background:#1E1B18;padding:36px;border-radius:16px">
+<p style="font-size:30px;color:#FAF6EF;flex:1">Todo padrão é descrito por quatro elementos essenciais: <b style="color:#E0702A">nome</b>, <b style="color:#E0702A">problema</b> (quando aplicar), <b style="color:#E0702A">solução</b> (classes, objetos e relações) e <b style="color:#E0702A">consequências</b> (vantagens e custos).</p>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;font-size:24px;color:#8A8278">Design Patterns · Iron Burguer · 3 de 15</p>
+
+</section>
+<section id="categorias" data-transition="fade" style="background:#FAF6EF;color:#1E1B18;font-family:'Public Sans', Verdana, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<h2 style="font-family:'Oswald', Arial, sans-serif;font-size:76px;font-weight:600;line-height:1.1;text-transform:uppercase">As três categorias do catálogo GoF</h2>
+<div style="display:flex;gap:28px">
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FFFFFF;padding:36px;border-radius:16px;border-top:8px solid #E0702A">
+<h3 style="font-family:'Oswald', Arial, sans-serif;font-size:38px;font-weight:600;text-transform:uppercase">Criacionais</h3>
+<p style="font-size:30px;color:#1E1B18"><b>Criação dos objetos</b></p>
+<p style="font-size:27px;color:#5A544C">Abstraem como os objetos são instanciados, compostos e representados, separando o uso do objeto da decisão sobre qual classe concreta criar.</p>
+<p style="font-size:26px;color:#8A4A18">Abstract Factory · Builder · Factory Method · Prototype · Singleton</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#F1ECE3;padding:36px;border-radius:16px;border-top:8px solid #A9A093">
+<h3 style="font-family:'Oswald', Arial, sans-serif;font-size:38px;font-weight:600;text-transform:uppercase">Estruturais</h3>
+<p style="font-size:30px;color:#1E1B18"><b>Composição dos objetos</b></p>
+<p style="font-size:27px;color:#5A544C">Tratam de como classes e objetos se combinam para formar estruturas maiores, mantendo-as flexíveis e eficientes.</p>
+<p style="font-size:26px;color:#6A6258">Adapter · Bridge · Composite · Decorator · Façade · Flyweight · Proxy</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FFFFFF;padding:36px;border-radius:16px;border-top:8px solid #3F8C8A">
+<h3 style="font-family:'Oswald', Arial, sans-serif;font-size:38px;font-weight:600;text-transform:uppercase">Comportamentais</h3>
+<p style="font-size:30px;color:#1E1B18"><b>Responsabilidades entre objetos</b></p>
+<p style="font-size:27px;color:#5A544C">Tratam da atribuição de responsabilidades e dos algoritmos, descrevendo como os objetos se comunicam e cooperam.</p>
+<p style="font-size:26px;color:#2E6A68">Chain of Responsibility · Command · Interpreter · Iterator · Mediator · Memento · Observer · State · Strategy · Template Method · Visitor</p>
+</div>
+</div>
+<div style="display:flex;gap:28px;align-items:center;background:#1E1B18;padding:32px;border-radius:16px">
+<p style="font-size:29px;color:#FAF6EF;flex:1">O catálogo também classifica os padrões por <b style="color:#E0702A">escopo</b>: os de <b>classe</b> resolvem o problema por herança, definida em tempo de compilação (Factory Method, Adapter, Template Method, Interpreter); os de <b>objeto</b> resolvem por composição, que pode mudar em tempo de execução (todos os demais).</p>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;font-size:24px;color:#8A8278">Design Patterns · Iron Burguer · 4 de 15</p>
+
+</section>
+<section id="criacionais" data-section="Padrões criacionais: Prototype e Singleton, com exemplos do Iron Burguer." data-transition="push" style="background:#E0702A;color:#1E1B18;font-family:'Public Sans', Verdana, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;justify-content:center;gap:36px">
+<p style="font-family:'Oswald', Arial, sans-serif;font-size:30px;font-weight:600;letter-spacing:8px;text-transform:uppercase;color:#3A1C06">Categoria 1 de 2</p>
+<h1 style="font-family:'Oswald', Arial, sans-serif;font-size:132px;font-weight:700;line-height:1;text-transform:uppercase;color:#1E1B18">Padrões criacionais</h1>
+<p style="font-size:44px;line-height:1.35;color:#3A1C06;width:1500px">Abstraem o processo de criação dos objetos. O sistema passa a depender de <b>interfaces</b>, e não das classes concretas que ele instancia, ganhando liberdade sobre <b>o que</b> é criado, <b>quem</b> cria, <b>como</b> e <b>quando</b>.</p>
+<div style="display:flex;gap:24px">
+<p style="font-size:32px;font-weight:600;background:#1E1B18;color:#FAF6EF;padding:20px 32px;border-radius:999px">Prototype</p>
+<p style="font-size:32px;font-weight:600;background:#1E1B18;color:#FAF6EF;padding:20px 32px;border-radius:999px">Singleton</p>
+<p style="font-size:32px;color:#3A1C06;padding:20px 0">os dois padrões que escolhemos nesta categoria</p>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;font-size:24px;color:#5E3312">Design Patterns · Iron Burguer · 5 de 15</p>
+
+</section>
+<section id="prototype" data-transition="fade" style="background:#FAF6EF;color:#1E1B18;font-family:'Public Sans', Verdana, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:32px">
+<div style="display:flex;align-items:center;gap:24px">
+<p style="font-family:'Oswald', Arial, sans-serif;font-size:26px;font-weight:600;letter-spacing:5px;text-transform:uppercase;color:#FAF6EF;background:#E0702A;padding:12px 24px;border-radius:999px">Criacional · escopo de objeto</p>
+<h2 style="font-family:'Oswald', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1;text-transform:uppercase">Prototype</h2>
+</div>
+<div style="display:flex;gap:28px">
+<div style="flex:1;display:flex;flex-direction:column;gap:10px;background:#FFFFFF;padding:34px;border-radius:16px;border-left:6px solid #E0702A">
+<h3 style="font-family:'Oswald', Arial, sans-serif;font-size:28px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#A8511A">Objetivo</h3>
+<p style="font-size:29px;color:#1E1B18">Especificar os objetos a serem criados usando uma <b>instância prototípica</b> e criar novos objetos <b>copiando esse protótipo</b>.</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:10px;background:#FFFFFF;padding:34px;border-radius:16px;border-left:6px solid #E0702A">
+<h3 style="font-family:'Oswald', Arial, sans-serif;font-size:28px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#A8511A">Contexto no Iron Burguer</h3>
+<p style="font-size:29px;color:#1E1B18">O cardápio sugere lanches prontos de carne, batata e bebida — <b>12 combinações</b> possíveis (3 × 2 × 2, RNG01) — e no UC08 o próprio cliente registra dezenas deles por hora pelo aplicativo.</p>
+</div>
+</div>
+<div style="display:flex;gap:28px">
+<div style="flex:1;display:flex;flex-direction:column;gap:10px;background:#FFF3E9;padding:34px;border-radius:16px;border-left:6px solid #B3321F">
+<h3 style="font-family:'Oswald', Arial, sans-serif;font-size:28px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#8E2819">Problema</h3>
+<p style="font-size:29px;color:#1E1B18">Montar cada pedido <b>item por item, do zero</b>, é lento no aplicativo e repete a mesma configuração o dia inteiro. Criar uma classe para cada uma das 12 combinações multiplicaria as classes sem necessidade.</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:10px;background:#EAF4F3;padding:34px;border-radius:16px;border-left:6px solid #3F8C8A">
+<h3 style="font-family:'Oswald', Arial, sans-serif;font-size:28px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#2E6A68">Solução</h3>
+<p style="font-size:29px;color:#1E1B18">Cada lanche sugerido é cadastrado uma vez como <b>protótipo</b>. Ao registrar o pedido, o sistema <b>clona</b> o protótipo e o cliente ajusta apenas o que quer diferente.</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;font-size:24px;color:#8A8278">Design Patterns · Iron Burguer · 6 de 15</p>
+
+</section>
+<section id="prototype-ex" data-transition="fade" style="background:#1E1B18;color:#FAF6EF;font-family:'Public Sans', Verdana, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:30px">
+<h2 style="font-family:'Oswald', Arial, sans-serif;font-size:66px;font-weight:600;line-height:1.1;text-transform:uppercase">Prototype no Iron Burguer</h2>
+<div style="display:flex;gap:28px;align-items:stretch">
+<div style="flex:1;display:flex;flex-direction:column;gap:14px;background:#15130F;padding:32px;border-radius:16px;border:1px solid #3A332C">
+<p style="font-family:'Oswald', Arial, sans-serif;font-size:24px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#6FBFBC">O clone profundo</p>
+<p style="font-family:'JetBrains Mono', Courier New, monospace;font-size:24px;line-height:1.55;color:#D9CFC2">interface Prototipo {<br>&nbsp;&nbsp;Pedido clonar();<br>}<br><br>class Pedido<br>&nbsp;&nbsp;&nbsp;&nbsp;implements Prototipo {<br><br>&nbsp;&nbsp;public Pedido clonar() {<br>&nbsp;&nbsp;&nbsp;&nbsp;Pedido copia = new Pedido();<br>&nbsp;&nbsp;&nbsp;&nbsp;for (ItemPedido i : itens)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;copia.add(i.clonar());<br>&nbsp;&nbsp;&nbsp;&nbsp;return copia;<br>&nbsp;&nbsp;}<br>}</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:14px;background:#15130F;padding:32px;border-radius:16px;border:1px solid #3A332C">
+<p style="font-family:'Oswald', Arial, sans-serif;font-size:24px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#6FBFBC">O cardápio de protótipos</p>
+<p style="font-family:'JetBrains Mono', Courier New, monospace;font-size:24px;line-height:1.55;color:#D9CFC2">class CardapioDeLanches {<br>&nbsp;&nbsp;private Map&lt;String, Pedido&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;protos = new HashMap&lt;&gt;();<br><br>&nbsp;&nbsp;void registrar(String nome,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Pedido p) {<br>&nbsp;&nbsp;&nbsp;&nbsp;protos.put(nome, p);<br>&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;Pedido novo(String nome) {<br>&nbsp;&nbsp;&nbsp;&nbsp;return protos.get(nome)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.clonar();<br>&nbsp;&nbsp;}<br>}</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:14px;background:#15130F;padding:32px;border-radius:16px;border:1px solid #3A332C">
+<p style="font-family:'Oswald', Arial, sans-serif;font-size:24px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#6FBFBC">O uso no aplicativo</p>
+<p style="font-family:'JetBrains Mono', Courier New, monospace;font-size:24px;line-height:1.55;color:#D9CFC2"><span style="color:#E8A33D">// UC08 - Registrar Pedido</span><br>Pedido p = cardapio<br>&nbsp;&nbsp;&nbsp;&nbsp;.novo("LANCHE BOI");<br><br>p.trocarBebida(sucoLaranja);<br>p.observacao("sem cebola");<br><br><span style="color:#6FBFBC">// o protótipo no cardápio<br>// continua intacto</span></p>
+</div>
+</div>
+<div style="display:flex;gap:28px">
+<div style="flex:1;display:flex;flex-direction:column;gap:8px;background:#2A2521;padding:30px;border-radius:16px">
+<h3 style="font-size:30px;font-weight:700;color:#E0702A">Ganho</h3>
+<p style="font-size:28px;color:#D9CFC2">Um lanche novo no cardápio é <b>cadastro</b>, não código: o protótipo é registrado em tempo de execução.</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:8px;background:#2A2521;padding:30px;border-radius:16px">
+<h3 style="font-size:30px;font-weight:700;color:#E0702A">Cuidado</h3>
+<p style="font-size:28px;color:#D9CFC2">Uma <b>cópia rasa</b> compartilharia a lista de itens — alterar o clone mudaria o lanche do cardápio. O clone precisa ser profundo.</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;font-size:24px;color:#9C9287">Design Patterns · Iron Burguer · 7 de 15</p>
+
+</section>
+<section id="singleton" data-transition="fade" style="background:#FAF6EF;color:#1E1B18;font-family:'Public Sans', Verdana, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:32px">
+<div style="display:flex;align-items:center;gap:24px">
+<p style="font-family:'Oswald', Arial, sans-serif;font-size:26px;font-weight:600;letter-spacing:5px;text-transform:uppercase;color:#FAF6EF;background:#E0702A;padding:12px 24px;border-radius:999px">Criacional · escopo de objeto</p>
+<h2 style="font-family:'Oswald', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1;text-transform:uppercase">Singleton</h2>
+</div>
+<div style="display:flex;gap:28px">
+<div style="flex:1;display:flex;flex-direction:column;gap:10px;background:#FFFFFF;padding:34px;border-radius:16px;border-left:6px solid #E0702A">
+<h3 style="font-family:'Oswald', Arial, sans-serif;font-size:28px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#A8511A">Objetivo</h3>
+<p style="font-size:29px;color:#1E1B18">Garantir que uma classe tenha <b>uma única instância</b> e fornecer um <b>ponto global de acesso</b> a ela.</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:10px;background:#FFFFFF;padding:34px;border-radius:16px;border-left:6px solid #E0702A">
+<h3 style="font-family:'Oswald', Arial, sans-serif;font-size:28px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#A8511A">Contexto no Iron Burguer</h3>
+<p style="font-size:29px;color:#1E1B18">A <b>fila de produção</b> do dia é uma só, e a <b>senha</b> do pedido é um número sequencial único gerado pelo sistema (RNG14 e RNG23).</p>
+</div>
+</div>
+<div style="display:flex;gap:28px">
+<div style="flex:1;display:flex;flex-direction:column;gap:10px;background:#FFF3E9;padding:34px;border-radius:16px;border-left:6px solid #B3321F">
+<h3 style="font-family:'Oswald', Arial, sans-serif;font-size:28px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#8E2819">Problema</h3>
+<p style="font-size:29px;color:#1E1B18">Se o aplicativo do cliente e a tela da cozinha criarem <b>cada uma a sua fila</b>, surgem duas verdades sobre a mesma operação: senhas repetidas e ordem de produção divergente — exatamente a falha que o cliente relatou.</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:10px;background:#EAF4F3;padding:34px;border-radius:16px;border-left:6px solid #3F8C8A">
+<h3 style="font-family:'Oswald', Arial, sans-serif;font-size:28px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#2E6A68">Solução</h3>
+<p style="font-size:29px;color:#1E1B18">A própria classe controla sua instância: <b>construtor privado</b>, atributo estático e um método <b>getInstancia()</b> que cria na primeira chamada e devolve sempre o mesmo objeto.</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;font-size:24px;color:#8A8278">Design Patterns · Iron Burguer · 8 de 15</p>
+
+</section>
+<section id="singleton-ex" data-transition="fade" style="background:#1E1B18;color:#FAF6EF;font-family:'Public Sans', Verdana, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:30px">
+<h2 style="font-family:'Oswald', Arial, sans-serif;font-size:66px;font-weight:600;line-height:1.1;text-transform:uppercase">Singleton no Iron Burguer</h2>
+<div style="display:flex;gap:28px;align-items:stretch">
+<div style="flex:1;display:flex;flex-direction:column;gap:14px;background:#15130F;padding:32px;border-radius:16px;border:1px solid #3A332C">
+<p style="font-family:'Oswald', Arial, sans-serif;font-size:24px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#6FBFBC">A classe controla sua instância</p>
+<p style="font-family:'JetBrains Mono', Courier New, monospace;font-size:24px;line-height:1.55;color:#D9CFC2">public class FilaDeProducao {<br>&nbsp;&nbsp;private static FilaDeProducao instancia;<br>&nbsp;&nbsp;private List&lt;Pedido&gt; fila = ...;<br>&nbsp;&nbsp;private int ultimaSenha = 0;<br><br>&nbsp;&nbsp;<span style="color:#E8A33D">private</span> FilaDeProducao() { }<br><br>&nbsp;&nbsp;public static synchronized<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FilaDeProducao getInstancia() {<br>&nbsp;&nbsp;&nbsp;&nbsp;if (instancia == null)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;instancia = new FilaDeProducao();<br>&nbsp;&nbsp;&nbsp;&nbsp;return instancia;<br>&nbsp;&nbsp;}<br>}</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:14px;background:#15130F;padding:32px;border-radius:16px;border:1px solid #3A332C">
+<p style="font-family:'Oswald', Arial, sans-serif;font-size:24px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#6FBFBC">Quem usa não cria</p>
+<p style="font-family:'JetBrains Mono', Courier New, monospace;font-size:24px;line-height:1.55;color:#D9CFC2"><span style="color:#E8A33D">// app do cliente (UC12)</span><br>FilaDeProducao.getInstancia()<br>&nbsp;&nbsp;.enfileirar(pedido);<br><br><span style="color:#E8A33D">// tela da cozinha (UC13)</span><br>Pedido p = FilaDeProducao<br>&nbsp;&nbsp;.getInstancia().proximo();<br><br><span style="color:#6FBFBC">// a mesma fila, a mesma ordem,<br>// a mesma numeração de senha</span></p>
+</div>
+</div>
+<div style="display:flex;gap:28px">
+<div style="flex:1;display:flex;flex-direction:column;gap:8px;background:#2A2521;padding:30px;border-radius:16px">
+<h3 style="font-size:30px;font-weight:700;color:#E0702A">Ganho</h3>
+<p style="font-size:28px;color:#D9CFC2">Uma única fila e uma única sequência de senhas em todo o sistema, garantindo a ordem de chegada (RNG23).</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:8px;background:#2A2521;padding:30px;border-radius:16px">
+<h3 style="font-size:30px;font-weight:700;color:#E0702A">Cuidados</h3>
+<p style="font-size:28px;color:#D9CFC2">Estado global dificulta testes e, com vários acessos simultâneos, exige controle de concorrência — por isso o <b>synchronized</b>.</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;font-size:24px;color:#9C9287">Design Patterns · Iron Burguer · 9 de 15</p>
+
+</section>
+<section id="comportamentais" data-section="Padrões comportamentais: Command e State, com exemplos do Iron Burguer." data-transition="push" style="background:#3F8C8A;color:#06201F;font-family:'Public Sans', Verdana, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;justify-content:center;gap:36px">
+<p style="font-family:'Oswald', Arial, sans-serif;font-size:30px;font-weight:600;letter-spacing:8px;text-transform:uppercase;color:#06201F">Categoria 2 de 2</p>
+<h1 style="font-family:'Oswald', Arial, sans-serif;font-size:124px;font-weight:700;line-height:1;text-transform:uppercase;color:#06201F">Padrões comportamentais</h1>
+<p style="font-size:44px;line-height:1.35;color:#06201F;width:1500px">Tratam da <b>atribuição de responsabilidades entre objetos</b> e dos algoritmos. Descrevem não só a estrutura, mas o <b>padrão de comunicação</b> entre os objetos em tempo de execução.</p>
+<div style="display:flex;gap:24px">
+<p style="font-size:32px;font-weight:600;background:#06201F;color:#FAF6EF;padding:20px 32px;border-radius:999px">Command</p>
+<p style="font-size:32px;font-weight:600;background:#06201F;color:#FAF6EF;padding:20px 32px;border-radius:999px">State</p>
+<p style="font-size:32px;color:#06201F;padding:20px 0">os dois padrões que escolhemos nesta categoria</p>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;font-size:24px;color:#16413F">Design Patterns · Iron Burguer · 10 de 15</p>
+
+</section>
+<section id="command" data-transition="fade" style="background:#FAF6EF;color:#1E1B18;font-family:'Public Sans', Verdana, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:32px">
+<div style="display:flex;align-items:center;gap:24px">
+<p style="font-family:'Oswald', Arial, sans-serif;font-size:26px;font-weight:600;letter-spacing:5px;text-transform:uppercase;color:#FAF6EF;background:#3F8C8A;padding:12px 24px;border-radius:999px">Comportamental · escopo de objeto</p>
+<h2 style="font-family:'Oswald', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1;text-transform:uppercase">Command</h2>
+</div>
+<div style="display:flex;gap:28px">
+<div style="flex:1;display:flex;flex-direction:column;gap:10px;background:#FFFFFF;padding:34px;border-radius:16px;border-left:6px solid #3F8C8A">
+<h3 style="font-family:'Oswald', Arial, sans-serif;font-size:28px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#2E6A68">Objetivo</h3>
+<p style="font-size:29px;color:#1E1B18">Encapsular uma requisição como um <b>objeto</b>, permitindo enfileirar requisições, registrá-las em log e apoiar a operação de <b>desfazer</b>.</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:10px;background:#FFFFFF;padding:34px;border-radius:16px;border-left:6px solid #3F8C8A">
+<h3 style="font-family:'Oswald', Arial, sans-serif;font-size:28px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#2E6A68">Contexto no Iron Burguer</h3>
+<p style="font-size:29px;color:#1E1B18">No UC13 os pedidos pagos entram numa <b>fila</b> de produção; no UC11 o cliente pode <b>cancelar</b>; e o gerente precisa do histórico para os relatórios (UC24 e UC25).</p>
+</div>
+</div>
+<div style="display:flex;gap:28px">
+<div style="flex:1;display:flex;flex-direction:column;gap:10px;background:#FFF3E9;padding:34px;border-radius:16px;border-left:6px solid #B3321F">
+<h3 style="font-family:'Oswald', Arial, sans-serif;font-size:28px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#8E2819">Problema</h3>
+<p style="font-size:29px;color:#1E1B18">Se a tela chamar direto os métodos da produção, <b>quem pede fica acoplado a quem executa</b>. Não há como enfileirar, desfazer nem registrar o que foi solicitado.</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:10px;background:#EAF4F3;padding:34px;border-radius:16px;border-left:6px solid #3F8C8A">
+<h3 style="font-family:'Oswald', Arial, sans-serif;font-size:28px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#2E6A68">Solução</h3>
+<p style="font-size:29px;color:#1E1B18">Cada operação sobre o pedido vira um objeto com <b>executar()</b> e <b>desfazer()</b>. A fila guarda comandos, não chamadas, e o histórico de comandos é o log que alimenta os relatórios.</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;font-size:24px;color:#8A8278">Design Patterns · Iron Burguer · 11 de 15</p>
+
+</section>
+<section id="command-ex" data-transition="fade" style="background:#1E1B18;color:#FAF6EF;font-family:'Public Sans', Verdana, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:28px">
+<h2 style="font-family:'Oswald', Arial, sans-serif;font-size:66px;font-weight:600;line-height:1.1;text-transform:uppercase">Command no Iron Burguer</h2>
+<div style="display:flex;gap:28px;align-items:stretch">
+<div style="flex:1;display:flex;flex-direction:column;gap:14px;background:#15130F;padding:32px;border-radius:16px;border:1px solid #3A332C">
+<p style="font-family:'Oswald', Arial, sans-serif;font-size:24px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#6FBFBC">A ação vira objeto</p>
+<p style="font-family:'JetBrains Mono', Courier New, monospace;font-size:24px;line-height:1.55;color:#D9CFC2">interface Comando {<br>&nbsp;&nbsp;void executar();<br>&nbsp;&nbsp;void desfazer();<br>}<br><br>class EnviarParaProducao<br>&nbsp;&nbsp;&nbsp;&nbsp;implements Comando {<br>&nbsp;&nbsp;private final Pedido p;<br><br>&nbsp;&nbsp;public void executar() {<br>&nbsp;&nbsp;&nbsp;&nbsp;p.alterarSituacao(<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EM_PRODUCAO);<br>&nbsp;&nbsp;}<br>&nbsp;&nbsp;public void desfazer() {<br>&nbsp;&nbsp;&nbsp;&nbsp;p.alterarSituacao(PAGO);<br>&nbsp;&nbsp;}<br>}</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:14px;background:#15130F;padding:32px;border-radius:16px;border:1px solid #3A332C">
+<p style="font-family:'Oswald', Arial, sans-serif;font-size:24px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#6FBFBC">A fila guarda comandos</p>
+<p style="font-family:'JetBrains Mono', Courier New, monospace;font-size:24px;line-height:1.55;color:#D9CFC2">class FilaDeProducao {<br>&nbsp;&nbsp;private Queue&lt;Comando&gt; fila;<br>&nbsp;&nbsp;private Deque&lt;Comando&gt; feitos;<br><br>&nbsp;&nbsp;void enfileirar(Comando c) {<br>&nbsp;&nbsp;&nbsp;&nbsp;fila.add(c);<br>&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;void executarProximo() {<br>&nbsp;&nbsp;&nbsp;&nbsp;Comando c = fila.poll();<br>&nbsp;&nbsp;&nbsp;&nbsp;c.executar();<br>&nbsp;&nbsp;&nbsp;&nbsp;feitos.push(c);<br>&nbsp;&nbsp;}<br><br>&nbsp;&nbsp;void desfazerUltimo() {<br>&nbsp;&nbsp;&nbsp;&nbsp;feitos.pop().desfazer();<br>&nbsp;&nbsp;}<br>}</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:18px">
+<div style="background:#2A2521;padding:28px;border-radius:16px;display:flex;flex-direction:column;gap:8px">
+<h3 style="font-size:28px;font-weight:700;color:#6FBFBC">O que vira comando</h3>
+<p style="font-size:26px;color:#D9CFC2">EnviarParaProducao · RegistrarPagamento · RegistrarEntrega · CancelarPedido</p>
+</div>
+<div style="background:#2A2521;padding:28px;border-radius:16px;display:flex;flex-direction:column;gap:8px">
+<h3 style="font-size:28px;font-weight:700;color:#E0702A">Ganho</h3>
+<p style="font-size:26px;color:#D9CFC2">A fila guarda objetos, não chamadas: dá para respeitar a ordem (RNG23), desfazer (UC11) e registrar o histórico dos relatórios.</p>
+</div>
+<div style="background:#2A2521;padding:28px;border-radius:16px;display:flex;flex-direction:column;gap:8px">
+<h3 style="font-size:28px;font-weight:700;color:#E0702A">Cuidado</h3>
+<p style="font-size:26px;color:#D9CFC2">Uma classe por operação; e nem tudo é reversível — um hambúrguer já produzido não volta ao estoque.</p>
+</div>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;font-size:24px;color:#9C9287">Design Patterns · Iron Burguer · 12 de 15</p>
+
+</section>
+<section id="state" data-transition="fade" style="background:#FAF6EF;color:#1E1B18;font-family:'Public Sans', Verdana, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:30px">
+<div style="display:flex;align-items:center;gap:24px">
+<p style="font-family:'Oswald', Arial, sans-serif;font-size:26px;font-weight:600;letter-spacing:5px;text-transform:uppercase;color:#FAF6EF;background:#3F8C8A;padding:12px 24px;border-radius:999px">Comportamental · escopo de objeto</p>
+<h2 style="font-family:'Oswald', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1;text-transform:uppercase">State</h2>
+</div>
+<div style="display:flex;gap:28px">
+<div style="flex:1;display:flex;flex-direction:column;gap:10px;background:#FFFFFF;padding:32px;border-radius:16px;border-left:6px solid #3F8C8A">
+<h3 style="font-family:'Oswald', Arial, sans-serif;font-size:28px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#2E6A68">Objetivo</h3>
+<p style="font-size:29px;color:#1E1B18">Permitir que um objeto <b>altere seu comportamento quando o seu estado interno muda</b>. Para quem usa, é como se o objeto tivesse mudado de classe.</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:10px;background:#FFFFFF;padding:32px;border-radius:16px;border-left:6px solid #3F8C8A">
+<h3 style="font-family:'Oswald', Arial, sans-serif;font-size:28px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#2E6A68">Contexto no Iron Burguer</h3>
+<p style="font-size:29px;color:#1E1B18">O pedido percorre seis situações e cada uma permite operações diferentes: só se cancela antes da produção (RNG17) e só se entrega no <b>Pronto</b>, uma única vez (RNG25 e RNG26).</p>
+</div>
+</div>
+<div style="display:flex;gap:28px">
+<div style="flex:1;display:flex;flex-direction:column;gap:10px;background:#FFF3E9;padding:32px;border-radius:16px;border-left:6px solid #B3321F">
+<h3 style="font-family:'Oswald', Arial, sans-serif;font-size:28px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#8E2819">Problema</h3>
+<p style="font-size:29px;color:#1E1B18">Um <b>if por situação dentro de cada método</b> (cancelar, produzir, entregar). A mesma regra fica repetida em vários pontos e basta esquecer um para o pedido ser <b>entregue duas vezes</b>.</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:10px;background:#EAF4F3;padding:32px;border-radius:16px;border-left:6px solid #3F8C8A">
+<h3 style="font-family:'Oswald', Arial, sans-serif;font-size:28px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#2E6A68">Solução</h3>
+<p style="font-size:29px;color:#1E1B18">Cada situação vira <b>uma classe</b> que implementa a interface SituacaoPedido. O Pedido <b>delega</b> a operação à situação atual, e cada situação sabe para qual outra pode transitar.</p>
+</div>
+</div>
+<div style="display:flex;align-items:center;gap:14px;background:#1E1B18;padding:26px 32px;border-radius:16px">
+<p style="font-size:26px;color:#FAF6EF;white-space:nowrap">Recebido</p>
+<x-connector style="width:70px;color:#E0702A;border-width:3px"></x-connector>
+<p style="font-size:26px;color:#FAF6EF;white-space:nowrap">Pago</p>
+<x-connector style="width:70px;color:#E0702A;border-width:3px"></x-connector>
+<p style="font-size:26px;color:#FAF6EF;white-space:nowrap">Em produção</p>
+<x-connector style="width:70px;color:#E0702A;border-width:3px"></x-connector>
+<p style="font-size:26px;color:#FAF6EF;white-space:nowrap">Pronto</p>
+<x-connector style="width:70px;color:#E0702A;border-width:3px"></x-connector>
+<p style="font-size:26px;color:#6FBFBC;white-space:nowrap"><b>Entregue</b></p>
+<p style="font-size:26px;color:#9C9287;flex:1;text-align:right">Cancelado: a partir de Recebido ou Pago (RNG17)</p>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;font-size:24px;color:#8A8278">Design Patterns · Iron Burguer · 13 de 15</p>
+
+</section>
+<section id="state-ex" data-transition="fade" style="background:#1E1B18;color:#FAF6EF;font-family:'Public Sans', Verdana, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:28px">
+<h2 style="font-family:'Oswald', Arial, sans-serif;font-size:66px;font-weight:600;line-height:1.1;text-transform:uppercase">State no Iron Burguer</h2>
+<div style="display:flex;gap:28px;align-items:stretch">
+<div style="flex:1;display:flex;flex-direction:column;gap:14px;background:#15130F;padding:32px;border-radius:16px;border:1px solid #3A332C">
+<p style="font-family:'Oswald', Arial, sans-serif;font-size:24px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#E0702A">Sem o padrão</p>
+<p style="font-family:'JetBrains Mono', Courier New, monospace;font-size:24px;line-height:1.55;color:#D9CFC2">void entregar() {<br>&nbsp;&nbsp;if (situacao == PRONTO) {<br>&nbsp;&nbsp;&nbsp;&nbsp;situacao = ENTREGUE;<br>&nbsp;&nbsp;} else if (situacao == ENTREGUE) {<br>&nbsp;&nbsp;&nbsp;&nbsp;erro("MSG24");<br>&nbsp;&nbsp;} else { erro("MSG16"); }<br>}<br><span style="color:#E8A33D">// e o mesmo if em cancelar(),<br>// produzir(), entregar()…</span></p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:14px;background:#15130F;padding:32px;border-radius:16px;border:1px solid #3A332C">
+<p style="font-family:'Oswald', Arial, sans-serif;font-size:24px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#6FBFBC">Cada situação é uma classe</p>
+<p style="font-family:'JetBrains Mono', Courier New, monospace;font-size:24px;line-height:1.55;color:#D9CFC2">interface SituacaoPedido {<br>&nbsp;&nbsp;void cancelar(Pedido p);<br>&nbsp;&nbsp;void entregar(Pedido p);<br>}<br><br>class Pronto implements SituacaoPedido {<br>&nbsp;&nbsp;public void entregar(Pedido p) {<br>&nbsp;&nbsp;&nbsp;&nbsp;p.setSituacao(new Entregue());<br>&nbsp;&nbsp;}<br>&nbsp;&nbsp;public void cancelar(Pedido p) {<br>&nbsp;&nbsp;&nbsp;&nbsp;throw new RegraException("MSG16");<br>&nbsp;&nbsp;}<br>}</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:14px;background:#15130F;padding:32px;border-radius:16px;border:1px solid #3A332C">
+<p style="font-family:'Oswald', Arial, sans-serif;font-size:24px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#6FBFBC">O pedido delega</p>
+<p style="font-family:'JetBrains Mono', Courier New, monospace;font-size:24px;line-height:1.55;color:#D9CFC2">class Pedido {<br>&nbsp;&nbsp;private SituacaoPedido situacao<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= new Recebido();<br><br>&nbsp;&nbsp;public void entregar() {<br>&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#E8A33D">situacao.entregar(this);</span><br>&nbsp;&nbsp;}<br>}<br><br>class Entregue implements SituacaoPedido {<br>&nbsp;&nbsp;public void entregar(Pedido p) {<br>&nbsp;&nbsp;&nbsp;&nbsp;throw new RegraException("MSG24");<br>&nbsp;&nbsp;}<br>}</p>
+</div>
+</div>
+<div style="display:flex;gap:28px">
+<div style="flex:1;display:flex;flex-direction:column;gap:8px;background:#2A2521;padding:28px;border-radius:16px">
+<h3 style="font-size:30px;font-weight:700;color:#E0702A">Ganho</h3>
+<p style="font-size:27px;color:#D9CFC2">A regra da entrega única fica em <b>um só lugar</b>: a classe Entregue sempre recusa. Fim da entrega em duplicidade (P9).</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:8px;background:#2A2521;padding:28px;border-radius:16px">
+<h3 style="font-size:30px;font-weight:700;color:#E0702A">Custo</h3>
+<p style="font-size:27px;color:#D9CFC2">Seis classes de situação em vez de um atributo: vale a pena quando as regras por estado são muitas, como aqui.</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;font-size:24px;color:#9C9287">Design Patterns · Iron Burguer · 14 de 15</p>
+
+</section>
+<section id="fechamento" data-section="Quadro comparativo, conclusão e referências." data-transition="fade" style="background:#FAF6EF;color:#1E1B18;font-family:'Public Sans', Verdana, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:30px">
+<h2 style="font-family:'Oswald', Arial, sans-serif;font-size:68px;font-weight:600;line-height:1.1;text-transform:uppercase">Os quatro padrões no nosso projeto</h2>
+<table style="font-family:'Public Sans', Verdana, sans-serif;font-size:26px;color:#1E1B18;border:1px solid #D8D0C4">
+<tr style="background:#1E1B18">
+<th style="width:14%;color:#FAF6EF;text-align:left">Padrão</th>
+<th style="width:18%;color:#FAF6EF;text-align:left">Categoria e escopo</th>
+<th style="width:24%;color:#FAF6EF;text-align:left">Para que serve</th>
+<th style="width:24%;color:#FAF6EF;text-align:left">Onde entra no Iron Burguer</th>
+<th style="width:20%;color:#FAF6EF;text-align:left">Problema atacado</th>
+</tr>
+<tr>
+<td><b>Prototype</b></td>
+<td>Criacional · objeto</td>
+<td>Cria objetos clonando um protótipo já configurado</td>
+<td>Lanches sugeridos do cardápio clonados no app (UC08)</td>
+<td>P5 — produção de pedidos errados</td>
+</tr>
+<tr style="background:#F1ECE3">
+<td><b>Singleton</b></td>
+<td>Criacional · objeto</td>
+<td>Garante instância única com ponto global de acesso</td>
+<td>Fila de produção e numeração da senha (UC13)</td>
+<td>P8 — a fila de entrega não é respeitada</td>
+</tr>
+<tr>
+<td><b>Command</b></td>
+<td>Comportamental · objeto</td>
+<td>Encapsula a requisição como objeto, com desfazer e log</td>
+<td>Operações do pedido dentro da fila (UC11, UC13)</td>
+<td>P6 — a mudança no pedido é inviável</td>
+</tr>
+<tr style="background:#F1ECE3">
+<td><b>State</b></td>
+<td>Comportamental · objeto</td>
+<td>Muda o comportamento conforme o estado interno</td>
+<td>Situações do pedido e transições (UC11, UC15)</td>
+<td>P9 — a entrega do produto não é controlada</td>
+</tr>
+</table>
+<div style="display:flex;gap:28px">
+<div style="flex:1;display:flex;flex-direction:column;gap:10px;background:#1E1B18;padding:30px;border-radius:16px">
+<h3 style="font-family:'Oswald', Arial, sans-serif;font-size:30px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#E0702A">Conclusão</h3>
+<p style="font-size:27px;color:#D9CFC2">Juntos, os quatro contam o ciclo de vida de um pedido: ele <b>nasce</b> clonado de um lanche pronto, <b>vira uma ordem</b> numa fila única e <b>muda de comportamento</b> conforme a situação. Nenhum foi escolhido por ser famoso: cada um responde a um problema já registrado no DAN.</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:10px;background:#FFFFFF;padding:30px;border-radius:16px;border:1px solid #E2DACE">
+<h3 style="font-family:'Oswald', Arial, sans-serif;font-size:30px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#8A4A18">Referências</h3>
+<p style="font-size:25px;color:#5A544C">GAMMA, E.; HELM, R.; JOHNSON, R.; VLISSIDES, J. <i>Padrões de projeto: soluções reutilizáveis de software orientado a objetos</i>. Porto Alegre: Bookman, 2000.<br>FREEMAN, E.; ROBSON, E. <i>Use a cabeça! Padrões de projetos</i>. 2. ed. Rio de Janeiro: Alta Books, 2007.<br>Material da disciplina Análise e Projeto de Sistemas — Prof. Eduardo Castro, UniCEUB.</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;font-size:24px;color:#8A8278">Design Patterns · Iron Burguer · 15 de 15 · Obrigado! Perguntas?</p>
+
+</section>
+</div></div>
+<div id="notas"><b>Notas do orador</b><span id="notas-tx"></span></div>
+<div id="barra">
+  <button id="ant" aria-label="Slide anterior">&larr; Anterior</button>
+  <button id="prox" aria-label="Próximo slide">Próximo &rarr;</button>
+  <span id="cont"></span>
+  <button id="bn">Notas (N)</button>
+  <span id="dica">Setas para navegar · N para as notas do orador · Ctrl+P para gerar PDF</span>
+</div>
+<script>
+  const NOTAS = ["Boa noite. Nosso grupo é formado por Gabriel, Guilherme, Pedro Rebello e Pedro Vargas. Escolhemos duas categorias do catálogo GoF: criacionais e comportamentais, e dentro delas quatro padrões: Prototype, Singleton, Command e State. Todos os exemplos vêm do sistema do Iron Burguer, que é o projeto que estamos desenvolvendo na disciplina — então os padrões não ficam no abstrato, eles resolvem problemas que já estão documentados no nosso DAN e no nosso DDR. A apresentação tem 15 slides e cerca de 20 minutos.","Vamos seguir esta ordem: primeiro o conceito de padrão de projeto e o catálogo GoF, depois cada uma das duas categorias que escolhemos, com dois padrões em cada. Para cada padrão mostramos sempre a mesma estrutura: objetivo, contexto, problema e solução, seguidos de um slide com o exemplo em código no Iron Burguer. No fim, um quadro comparativo e as referências.","Padrão de projeto não é biblioteca nem framework: é uma receita de organização. O catálogo GoF de 1994 descreve 23 padrões, e cada um é documentado por quatro elementos: nome, problema, solução e consequências. O nome é mais importante do que parece — ele cria vocabulário na equipe. Vale destacar que padrão também tem custo: aumenta o número de classes, então só se aplica quando o problema realmente aparece.","O catálogo organiza os 23 padrões por propósito, em três categorias. Criacionais cuidam da criação dos objetos; estruturais, da composição; comportamentais, da atribuição de responsabilidades e da comunicação. Além do propósito existe o escopo: padrões de classe usam herança e ficam definidos em tempo de compilação; padrões de objeto usam composição e podem mudar em tempo de execução. Factory Method, por exemplo, é criacional de classe; Singleton, Observer e State são de objeto. Nós escolhemos a primeira e a terceira coluna.","Entramos na primeira categoria. A ideia central dos padrões criacionais é simples: o lugar do código que usa um objeto não deveria precisar saber qual classe concreta está sendo instanciada. Quando essa decisão fica espalhada em operadores new no meio das regras de negócio, qualquer item novo no cardápio obriga a mexer no código do pedido. Vamos ver dois padrões dessa categoria: Prototype, que cria copiando um objeto já configurado, e Singleton, que controla a quantidade de instâncias.","Prototype responde a uma pergunta diferente dos outros criacionais: em vez de \"qual classe instanciar\", ele pergunta \"de qual objeto já pronto eu parto\". O objetivo, nas palavras do GoF, é criar novos objetos copiando uma instância prototípica. No Iron Burguer o cardápio sugere lanches prontos, e são 12 combinações possíveis de carne, batata e bebida. Em vez de montar cada lanche do zero no aplicativo, ou de criar uma classe para cada combinação, cadastramos cada lanche sugerido uma vez como protótipo e clonamos. Vale marcar a diferença para a Factory: a fábrica cria pelo tipo, o protótipo cria pela cópia de um objeto já configurado.","À esquerda, o método clonar: repare que ele não copia só o pedido, ele percorre os itens e clona cada um. Isso é a cópia profunda, e é o ponto técnico mais importante do padrão. No meio, o cardápio funciona como um registro de protótipos: registrar um lanche sugerido é cadastro, não código novo. À direita, o uso no aplicativo — o cliente parte do lanche pronto e só troca a bebida. Se alguém perguntar qual o risco: se a cópia fosse rasa, o clone e o protótipo compartilhariam a mesma lista de itens, e tirar a cebola de um pedido tiraria a cebola do lanche do cardápio para sempre. É o erro clássico do Prototype.","Singleton é o padrão mais conhecido e também o mais criticado, e vale apresentar os dois lados. O objetivo é garantir instância única com ponto global de acesso. No Iron Burguer ele cabe na fila de produção e no gerador de senha do dia: as duas coisas precisam ser únicas, senão voltamos ao problema do contexto, que é a fila não respeitada e a senha repetida. A diferença em relação a uma variável global é que o controle fica dentro da própria classe.","A implementação tem três marcas registradas: atributo estático, construtor privado e o método estático getInstancia. O construtor privado é o que impede qualquer outra classe de dar new. À direita, veja que o aplicativo do cliente e a tela da cozinha pedem a instância em vez de criá-la, e por isso enxergam a mesma fila. Dois cuidados que a literatura levanta e que nós assumimos: o padrão cria estado global, o que atrapalha teste automatizado, e precisa de sincronização quando duas telas acessam ao mesmo tempo — daí o synchronized no método.","Segunda categoria. Enquanto os criacionais cuidam de como o objeto nasce, os comportamentais cuidam de como os objetos conversam e de quem é responsável por o quê. É a maior das três categorias, com onze padrões. Escolhemos dois que resolvem problemas que estão literalmente escritos no enunciado do Iron Burguer: tratar o pedido como uma ordem que entra numa fila e pode ser cancelada, que é o Command, e controlar a situação do pedido para não entregar duas vezes, que é o State.","Command é o padrão que transforma um verbo em substantivo: a ação de enviar para produção deixa de ser uma chamada de método e vira um objeto que pode ser guardado, enfileirado e desfeito. É exatamente o que o Iron Burguer precisa em três pontos: a fila de produção do UC13, o cancelamento do UC11 e o histórico que alimenta os relatórios. A frase para fixar: quem emite a ordem não precisa saber quem vai executá-la, nem quando.","À esquerda, o comando: uma interface com executar e desfazer, e uma implementação que sabe mudar a situação do pedido e voltar atrás. No meio, a fila: repare que ela guarda Comando, não Pedido, e mantém uma pilha do que já foi executado — é essa pilha que permite desfazer. Vale amarrar com o slide anterior da categoria criacional: essa FilaDeProducao é o mesmo Singleton do slide 9, ou seja, existe uma fila só, e ela guarda comandos. O cuidado é honesto: nem toda operação é reversível, porque desfazer a produção de um hambúrguer não devolve os ingredientes ao estoque.","State é o padrão que mais conversa com o nosso DDR, porque a classe Pedido tem o atributo situação e as regras de negócio RNG17, RNG24, RNG25 e RNG26 dizem o que pode acontecer em cada uma. O objetivo do padrão é fazer o objeto mudar de comportamento quando o estado interno muda. Sem ele, a regra da entrega única fica espalhada em vários ifs, e o enunciado do Iron Burguer diz exatamente que o mesmo pedido chega a ser entregue duas vezes. Com o padrão, só a classe Pronto implementa entregar; nas outras, a operação é recusada.","Comparem os três blocos. À esquerda, o if por situação, repetido em cada operação: é onde o erro nasce, porque basta um método esquecer um caso. No meio, a situação virou classe: Pronto aceita entregar e recusa cancelar. À direita, o Pedido não decide nada, ele delega para a situação atual; e a classe Entregue recusa uma segunda entrega, que é a regra RNG26. O comportamento muda porque o objeto da situação mudou, não porque alguém escreveu mais um if. O custo é criar seis classes pequenas, o que se justifica porque temos quatro regras de negócio ligadas à situação.","Fechando: o quadro reúne os quatro padrões, a categoria e o escopo de cada um, para que servem e onde entram no nosso sistema. A última coluna é a mais importante para nós, porque amarra cada padrão a um problema que já estava documentado no DAN. E repare na história que os quatro contam juntos: o pedido nasce clonado de um lanche pronto com Prototype, vira uma ordem que entra numa fila única com Command e Singleton, e muda de comportamento ao longo dessa fila com State. A mensagem final é a de que padrão é ferramenta, não enfeite: usar onde o problema não existe só aumenta o número de classes. Obrigado, e ficamos à disposição para perguntas."];
+  const secs = [...document.querySelectorAll("#tela > section")];
+  let i = 0;
+  function ajustar(){
+    const m = 0.95, bar = 46;
+    const e = Math.min((innerWidth*m)/1920, ((innerHeight-bar)*m)/1080);
+    document.getElementById("tela").style.transform =
+      "translate(-50%,-50%) scale("+e+")";
+  }
+  function mostrar(n){
+    i = Math.max(0, Math.min(secs.length-1, n));
+    secs.forEach((s,k) => s.classList.toggle("on", k===i));
+    document.getElementById("cont").textContent = (i+1)+" / "+secs.length;
+    document.getElementById("notas-tx").textContent = NOTAS[i] || "(sem notas)";
+    location.hash = "s"+(i+1);
+  }
+  document.getElementById("ant").onclick = () => mostrar(i-1);
+  document.getElementById("prox").onclick = () => mostrar(i+1);
+  document.getElementById("bn").onclick = () =>
+    document.getElementById("notas").classList.toggle("on");
+  addEventListener("keydown", e => {
+    if(e.key==="ArrowRight"||e.key===" "||e.key==="PageDown") mostrar(i+1);
+    else if(e.key==="ArrowLeft"||e.key==="PageUp") mostrar(i-1);
+    else if(e.key==="Home") mostrar(0);
+    else if(e.key==="End") mostrar(secs.length-1);
+    else if(e.key.toLowerCase()==="n") document.getElementById("bn").click();
+  });
+  addEventListener("resize", ajustar);
+  addEventListener("beforeprint", () => secs.forEach(s => s.classList.add("on")));
+  addEventListener("afterprint", () => mostrar(i));
+  ajustar();
+  mostrar(Math.max(0, (parseInt((location.hash||"").replace("#s",""),10)||1) - 1));
+</script>
+</body>
+</html>
