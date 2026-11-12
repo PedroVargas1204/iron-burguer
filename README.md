@@ -11,26 +11,39 @@ cliente quem consulta o cardápio, monta o pedido, paga e acompanha a produção
 
 ---
 
-## Entrega atual — versão 5.0
+## Entrega atual — versão 7.0
 
 | Pasta | Conteúdo |
 | --- | --- |
-| [`documentos/`](documentos) | DAN e DDR versão 5.0, em `.docx` e `.pdf` |
+| [`documentos/`](documentos) | DAN e DDR versão 7.0, em `.docx` e `.pdf` |
 | [`diagramas/`](diagramas) | Os 36 diagramas em PNG, em resolução ampliada |
 | [`apresentacao/`](apresentacao) | Apresentação sobre Padrões de Projeto (GoF) |
 | [`prototipo/`](prototipo) | Protótipo navegável do aplicativo |
+| [`ferramentas/v7`](ferramentas/v7) | Scripts que geram a v7 a partir da v6 |
 
 ### Documentos
 
-- **DAN v5.0** — 30 páginas. Problemas, solução, matriz de rastreabilidade, EAS,
-  regras de negócio, escopo, requisitos não funcionais e premissas.
-- **DDR v5.0** — 92 páginas. Diagrama de casos de uso, diagrama de classes, requisitos de
-  dados, as **26 especificações de caso de uso** e os **26 diagramas de sequência**, além
-  dos diagramas de atividade e de máquina de estados.
+Os dois documentos são o **modelo oficial da disciplina preenchido**: capa, estilos,
+cabeçalho, tabelas e sumário automático são os dos arquivos fornecidos pelo professor.
+
+- **DAN v7.0** — 23 páginas. Seções 1.1 a 3.7 na estrutura do modelo, mais **3.8 Regras de
+  Negócio**, **3.9 Requisitos Não Funcionais** e **3.10 Premissas e Restrições**.
+- **DDR v7.0** — 75 páginas. Capítulos 1 a 7 na estrutura do modelo, com **1.3 Escopo do
+  Sistema**, **1.4 Documentos de Referência**, **2.2 Rastreabilidade Funcionalidade x Caso
+  de Uso**, **2.3 Atores do Sistema** e **2.5 Matriz de Rastreabilidade da Solução**; o
+  capítulo 8 traz os **26 diagramas de sequência** e os capítulos **9 a 11**, o diagrama de
+  atividade, a máquina de estados e os requisitos não funcionais.
+
+As **26 especificações de caso de uso** seguem o formato do caderno de exercícios da
+disciplina: *Nome do UC*, *Funcionalidade (DAN)*, *Problema atendido*, *Descrição*,
+*Ator principal*, *Pré-condições*, *Pós-condições*, *Fluxo Principal*, *Fluxos
+Alternativos*, *Fluxos de Exceção*, *Regras de Negócio*, *Mensagens* e *Relacionamentos* —
+cada ficha fecha a rastreabilidade UC → F → S → P dentro dela mesma.
 
 Números do modelo: 15 problemas, 15 soluções, 26 funcionalidades, 26 casos de uso, 5 atores,
-20 classes, 5 enumerações, 36 regras de negócio e 30 mensagens. A numeração é 1:1 entre
-funcionalidade e caso de uso — **F*n*** corresponde sempre a **UC*n***.
+20 classes, 5 enumerações, 36 regras de negócio, 30 mensagens e 10 requisitos não
+funcionais. A numeração é 1:1 entre funcionalidade e caso de uso — **F*n*** corresponde
+sempre a **UC*n***.
 
 ### Apresentação
 
@@ -96,4 +109,6 @@ são da **1ª etapa** e foram mantidos como histórico. A branch `review1` guard
 frente de trabalho do grupo, cuja organização da EAS, numeração 1:1 e estrutura das
 especificações de caso de uso foram incorporadas à versão 5.0.
 
-**Para a entrega, use sempre os arquivos de `documentos/`.**
+**Para a entrega, use os arquivos `documentos/DAN_Iron_Burguer_v7.*` e
+`documentos/DDR_Iron_Burguer_v7.*`.** As versões 5.0 e 6.0 ficam na mesma pasta como
+histórico.
