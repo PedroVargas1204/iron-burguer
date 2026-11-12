@@ -22,11 +22,18 @@ cliente quem consulta o cardápio, monta o pedido, paga e acompanha a produção
 
 ### Documentos
 
-- **DAN v5.0** — 30 páginas. Problemas, solução, matriz de rastreabilidade, EAS,
-  regras de negócio, escopo, requisitos não funcionais e premissas.
-- **DDR v5.0** — 92 páginas. Diagrama de casos de uso, diagrama de classes, requisitos de
-  dados, as **26 especificações de caso de uso** e os **26 diagramas de sequência**, além
-  dos diagramas de atividade e de máquina de estados.
+Os dois documentos são o **modelo oficial da disciplina preenchido**: usam a capa, os
+estilos, o cabeçalho e as tabelas dos arquivos de modelo fornecidos pelo professor.
+
+- **DAN v5.0** — 24 páginas. Seções 1.1 a 3.7 na estrutura do modelo (empresa, negócio,
+  stakeholders, As Is, grande problema e 15 problemas específicos, grande solução, valor,
+  To Be, 15 objetivos específicos, matriz de rastreabilidade, EAS e usuários x
+  funcionalidade), mais as seções próprias do grupo em 3.8 a 3.10.
+- **DDR v5.0** — 87 páginas. Capítulos 1 a 7 na estrutura do modelo (introdução, diagrama
+  de caso de uso e EAS, priorização, diagrama de classe, requisitos de dados, regras de
+  negócio e as **26 especificações de caso de uso**), mais os capítulos 8 a 11 com os
+  **26 diagramas de sequência**, o diagrama de atividade, a máquina de estados e os
+  requisitos não funcionais.
 
 Números do modelo: 15 problemas, 15 soluções, 26 funcionalidades, 26 casos de uso, 5 atores,
 20 classes, 5 enumerações, 36 regras de negócio e 30 mensagens. A numeração é 1:1 entre
