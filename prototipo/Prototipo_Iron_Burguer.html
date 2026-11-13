@@ -1,0 +1,814 @@
+<title>Iron Burguer</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600&family=Public+Sans:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: o aplicativo à esquerda (moldura de celular no perfil Cliente), o registro
+   de regras à direita; empilha em uma coluna abaixo de 980px. */
+:root{
+  --cream:#FAF6EF; --ink:#1E1B18; --ember:#E0702A; --teal:#3F8C8A; --warm:#D9CFC2;
+  --muted:#5A544C; --line:#E2DACB; --surface:#FFFFFF; --panel:#F3ECE0;
+  --bg:var(--cream); --fg:var(--ink); --dim:var(--muted); --card:var(--surface);
+  --edge:var(--line); --soft:var(--panel); --accent:var(--ember); --ok:#2E6A68;
+  --warn:#9A5B12; --warnbg:#FBEFD9; --okbg:#DFEFEE; --embbg:#FBE5D6;
+  --display:'Oswald','Arial Narrow',sans-serif;
+  --body:'Public Sans',system-ui,-apple-system,sans-serif;
+  --mono:'JetBrains Mono','SF Mono',ui-monospace,monospace;
+  --r:12px; --shadow:0 1px 2px rgba(30,27,24,.07),0 6px 18px rgba(30,27,24,.06);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#15130F; --fg:#EFE8DC; --dim:#A49A8C; --card:#211D19; --edge:#352F28;
+  --soft:#1B1814; --accent:#F0853F; --ok:#6FBFBC; --warn:#E3A857;
+  --warnbg:#2E2416; --okbg:#17302F; --embbg:#33210F; --warm:#D9CFC2;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 18px rgba(0,0,0,.3); color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#15130F; --fg:#EFE8DC; --dim:#A49A8C; --card:#211D19; --edge:#352F28;
+  --soft:#1B1814; --accent:#F0853F; --ok:#6FBFBC; --warn:#E3A857;
+  --warnbg:#2E2416; --okbg:#17302F; --embbg:#33210F; --warm:#D9CFC2;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 18px rgba(0,0,0,.3); color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);line-height:1.5;
+  font-size:15px;-webkit-text-size-adjust:100%}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);
+  z-index:20;background:var(--ink)}
+h1,h2,h3,h4{font-family:var(--display);font-weight:600;letter-spacing:.01em;
+  text-wrap:balance;margin:0}
+p{margin:0}
+button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+.num{font-variant-numeric:tabular-nums}
+
+/* ---- barra superior ---- */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:15;background:var(--ink);
+  color:#F4EFE6;border-bottom:1px solid #000}
+.top-in{max-width:1320px;margin:0 auto;padding-block:10px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+  display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:9px;margin-right:auto}
+.brand .mk{width:26px;height:26px;border-radius:6px;background:var(--ember);
+  display:grid;place-items:center;flex:none}
+.brand b{font-family:var(--display);font-size:19px;letter-spacing:.03em;line-height:1}
+.brand span{font-size:11px;color:#9C9287;letter-spacing:.09em;text-transform:uppercase;
+  display:block;margin-top:1px}
+.tabs{display:flex;gap:4px;background:#2A2521;padding:3px;border-radius:9px}
+.tabs button{padding:6px 13px;border-radius:7px;font-size:13px;font-weight:600;
+  color:#BCB2A4;white-space:nowrap}
+.tabs button[aria-selected="true"]{background:var(--ember);color:#1E1B18}
+.tabs button:focus-visible,.sw:focus-visible{outline:2px solid var(--ember);outline-offset:2px}
+.sw{display:flex;align-items:center;gap:7px;font-size:12px;color:#BCB2A4;
+  background:#2A2521;padding:6px 11px;border-radius:8px}
+.sw i{width:8px;height:8px;border-radius:50%;background:#6FBFBC;flex:none}
+.sw.off i{background:#8A7F70}
+
+/* ---- estrutura ---- */
+.wrap{max-width:1320px;margin:0 auto;padding-block:22px 40px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+  display:grid;grid-template-columns:minmax(0,1fr) 352px;gap:22px;align-items:start}
+@media(max-width:980px){.wrap{grid-template-columns:minmax(0,1fr)}}
+.stage{min-width:0}
+
+/* ---- moldura de celular ---- */
+.phone{max-width:390px;margin:0 auto;border:9px solid var(--ink);border-radius:34px;
+  background:var(--card);box-shadow:var(--shadow);overflow:hidden}
+@media(max-width:460px){.phone{border-width:0;border-radius:var(--r);max-width:none}}
+.ph-bar{background:var(--ink);color:var(--warm);padding:7px 16px 9px;
+  display:flex;justify-content:space-between;font-size:11px;font-family:var(--mono)}
+.ph-body{padding:14px;display:flex;flex-direction:column;gap:13px}
+@media(min-width:560px){.ph-body{height:552px;overflow-y:auto}}
+.cliente{display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap;justify-content:center}
+.cliente .phone{margin:0;flex:0 0 auto}
+.roteiro{flex:1 1 270px;min-width:0;max-width:400px;background:var(--card);
+  border:1px solid var(--edge);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}
+.roteiro ol{margin:0;padding-left:19px;display:flex;flex-direction:column;gap:9px;
+  font-size:13px}
+.roteiro li::marker{font-family:var(--mono);font-size:11px;color:var(--dim)}
+.roteiro code{font-family:var(--mono);font-size:10.5px;font-weight:600;padding:1px 5px;
+  border-radius:4px;background:var(--embbg);color:var(--accent);white-space:nowrap}
+.ph-nav{display:flex;border-top:1px solid var(--edge);background:var(--soft)}
+.ph-nav button{flex:1;padding:9px 4px 11px;font-size:11px;font-weight:600;color:var(--dim);
+  display:flex;flex-direction:column;align-items:center;gap:3px}
+.ph-nav button[aria-selected="true"]{color:var(--accent)}
+.ph-nav .ic{font-size:15px;line-height:1}
+
+/* ---- painéis (produção / gerente) ---- */
+.panel{background:var(--card);border:1px solid var(--edge);border-radius:var(--r);
+  box-shadow:var(--shadow);overflow:hidden}
+.panel-h{padding:13px 16px;border-bottom:1px solid var(--edge);background:var(--soft);
+  display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.panel-h h2{font-size:17px}
+.panel-h .uc{font-family:var(--mono);font-size:11px;color:var(--dim)}
+.panel-b{padding:16px;display:flex;flex-direction:column;gap:14px}
+.cols{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(252px,1fr))}
+
+/* ---- componentes ---- */
+.card{background:var(--card);border:1px solid var(--edge);border-radius:10px;padding:12px}
+.card.sel{border-color:var(--accent);box-shadow:0 0 0 2px var(--embbg)}
+.eyebrow{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);
+  font-weight:700}
+.sub{font-size:12.5px;color:var(--dim)}
+.row{display:flex;gap:9px;align-items:center;justify-content:space-between}
+.btn{background:var(--accent);color:#1E1B18;padding:10px 15px;border-radius:9px;
+  font-weight:700;font-size:14px;display:inline-flex;align-items:center;
+  justify-content:center;gap:7px;text-align:center}
+.btn:disabled{opacity:.42;cursor:not-allowed}
+.btn.w{width:100%}
+.btn.gh{background:transparent;border:1px solid var(--edge);color:var(--fg);font-weight:600}
+.btn.sm{padding:6px 11px;font-size:12.5px;border-radius:7px}
+.btn.dg{background:transparent;border:1px solid var(--edge);color:var(--warn)}
+.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opt{display:flex;gap:10px;align-items:center;width:100%;text-align:left;padding:9px 11px;
+  border:1px solid var(--edge);border-radius:9px;background:var(--card);margin-bottom:7px}
+.opt:last-child{margin-bottom:0}
+.opt[aria-pressed="true"]{border-color:var(--accent);background:var(--embbg)}
+.opt:disabled{opacity:.5;cursor:not-allowed}
+.opt .nm{font-weight:600;font-size:13.5px}
+.opt .pz{margin-left:auto;font-family:var(--mono);font-size:12.5px;white-space:nowrap}
+.pill{display:inline-block;padding:2px 9px;border-radius:99px;font-size:10.5px;
+  font-weight:700;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
+.p-rec{background:var(--soft);color:var(--dim);border:1px solid var(--edge)}
+.p-pag{background:var(--okbg);color:var(--ok)}
+.p-pro{background:var(--embbg);color:var(--accent)}
+.p-pri{background:var(--warnbg);color:var(--warn)}
+.p-ent{background:var(--okbg);color:var(--ok)}
+.p-can{background:var(--soft);color:var(--dim);text-decoration:line-through}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--edge)}
+th{font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--dim)}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;font-family:var(--mono);
+  font-size:12.5px}
+tr.tot td{font-weight:700;border-top:2px solid var(--edge);border-bottom:0}
+.scroll{overflow-x:auto}
+.senha{font-family:var(--display);font-size:40px;line-height:1;color:var(--accent)}
+.empty{padding:22px 14px;text-align:center;color:var(--dim);font-size:13px;
+  border:1px dashed var(--edge);border-radius:10px}
+
+/* ---- registro de regras ---- */
+.rules{background:var(--card);border:1px solid var(--edge);border-radius:var(--r);
+  box-shadow:var(--shadow);overflow:hidden;position:sticky;
+  top:calc(env(safe-area-inset-top,0px) + 64px)}
+@media(max-width:980px){.rules{position:static}}
+.rules-h{padding:12px 15px;border-bottom:1px solid var(--edge);background:var(--soft)}
+.rules-h h2{font-size:15px}
+.log{max-height:min(62vh,560px);overflow-y:auto;padding:9px;display:flex;
+  flex-direction:column-reverse;gap:7px}
+.ent{display:grid;grid-template-columns:auto minmax(0,1fr);gap:9px;padding:8px 9px;
+  border-radius:8px;background:var(--soft);font-size:12.5px;align-items:start}
+.ent code{font-family:var(--mono);font-size:10.5px;font-weight:600;padding:2px 6px;
+  border-radius:5px;white-space:nowrap}
+.ent.r code{background:var(--embbg);color:var(--accent)}
+.ent.m code{background:var(--okbg);color:var(--ok)}
+.ent.b code{background:var(--warnbg);color:var(--warn)}
+.ent .tx{min-width:0;overflow-wrap:anywhere}
+.ent .tx b{display:block;font-size:11px;color:var(--dim);font-weight:600}
+
+/* ---- modal ---- */
+.scrim{position:fixed;inset:0;background:rgba(21,19,15,.55);z-index:30;display:grid;
+  place-items:center;padding:max(16px,env(safe-area-inset-left,0px))}
+.modal{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);
+  max-width:400px;width:100%;padding:20px;display:flex;flex-direction:column;gap:13px;
+  border:1px solid var(--edge)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);
+  bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:40;background:var(--ink);
+  color:var(--cream);padding:11px 17px;border-radius:10px;font-size:13.5px;
+  box-shadow:var(--shadow);max-width:min(420px,88vw)}
+@media(prefers-reduced-motion:no-preference){
+  .toast{animation:up .22s ease-out}
+  @keyframes up{from{opacity:0;transform:translate(-50%,8px)}}
+}
+.foot{max-width:1320px;margin:0 auto;padding-block:0 30px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+  font-size:12.5px;color:var(--dim)}
+.foot b{color:var(--fg)}
+</style>
+
+<header class="top">
+  <div class="top-in">
+    <div class="brand">
+      <span class="mk" aria-hidden="true">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1E1B18"
+             stroke-width="2.2" stroke-linecap="round"><path d="M3 9h18M4 14h16M6 19h12"/></svg>
+      </span>
+      <span><b>IRON BURGUER</b><span>Protótipo do aplicativo · v5.0</span></span>
+    </div>
+    <div class="tabs" role="tablist" aria-label="Perfil de acesso">
+      <button role="tab" aria-selected="true" data-perfil="cliente">Cliente</button>
+      <button role="tab" aria-selected="false" data-perfil="producao">Produção</button>
+      <button role="tab" aria-selected="false" data-perfil="gerente">Gerente</button>
+    </div>
+    <button class="sw" id="swAtend" aria-pressed="true">
+      <i></i><span>Atendimento aberto</span>
+    </button>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="stage" id="stage"></div>
+  <aside class="rules">
+    <div class="rules-h">
+      <h2>Regras aplicadas</h2>
+      <p class="sub">Cada ação registra aqui a regra de negócio e a mensagem do DDR v5.0.</p>
+    </div>
+    <div class="log" id="log"></div>
+  </aside>
+</main>
+
+<p class="foot">Protótipo de demonstração construído a partir do DAN e do DDR v5.0.
+Os códigos <b>UC</b>, <b>RNG</b> e <b>MSG</b> que aparecem na tela são os mesmos dos documentos.
+Nenhum dado é gravado: recarregar a página reinicia a operação.</p>
+
+<script>
+"use strict";
+const BRL = n => "R$ " + n.toFixed(2).replace(".", ",");
+const hhmm = d => String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");
+
+/* ====== dados, conforme o modelo da v5.0 ====== */
+const ING = [
+  {c:1,n:"Pão brioche",u:"un",q:40,min:12},
+  {c:2,n:"Carne bovina",u:"g",q:3000,min:1000},
+  {c:3,n:"Filé de frango",u:"g",q:2400,min:800},
+  {c:4,n:"Filé de peixe",u:"g",q:1600,min:800},
+  {c:5,n:"Queijo prato",u:"fatia",q:50,min:15},
+  {c:6,n:"Alface",u:"g",q:800,min:300},
+  {c:7,n:"Tomate",u:"g",q:900,min:300},
+  {c:8,n:"Cebola",u:"g",q:600,min:250},
+  {c:9,n:"Batata",u:"g",q:6000,min:2000},
+  {c:10,n:"Óleo de fritura",u:"ml",q:2500,min:3000},
+  {c:11,n:"Suco de caixinha 200 ml",u:"un",q:24,min:10},
+  {c:12,n:"Refrigerante lata 350 ml",u:"un",q:30,min:12}
+];
+const PROD = [
+  {c:"H1",k:"H",n:"Hambúrguer de Boi",t:"Carne de boi",p:22,f:{1:1,2:180,5:1,6:20,7:25,8:15}},
+  {c:"H2",k:"H",n:"Hambúrguer de Frango",t:"Carne de frango",p:19,f:{1:1,3:160,5:1,6:20,7:25}},
+  {c:"H3",k:"H",n:"Hambúrguer de Peixe",t:"Carne de peixe",p:24,f:{1:1,4:150,6:20,7:25,8:10}},
+  {c:"B1",k:"B",n:"Batata Comum",t:"Comum",p:12,f:{9:200,10:60}},
+  {c:"B2",k:"B",n:"Batata Rústica",t:"Rústica",p:15,f:{9:250,10:70}},
+  {c:"D1",k:"D",n:"Suco de Caixinha",t:"Suco de caixinha",p:6,f:{11:1}},
+  {c:"D2",k:"D",n:"Refrigerante Lata",t:"Refrigerante",p:8,f:{12:1}}
+];
+/* Protótipos do cardápio: o padrão Prototype do trabalho da 1ª etapa. */
+const SUGERIDOS = [
+  {n:"Clássico Boi",  h:"H1",b:"B2",d:"D2"},
+  {n:"Leve de Frango",h:"H2",b:"B1",d:"D1"},
+  {n:"Peixe do Dia",  h:"H3",b:"B2",d:null}
+];
+const LOCAL = {end:"Praça Central · SQN 208, Asa Norte", ini:"18:00", fim:"23:00"};
+const SIT = {RECEBIDO:["Recebido","p-rec"],PAGO:["Pago","p-pag"],
+  EM_PRODUCAO:["Em produção","p-pro"],PRONTO:["Pronto","p-pri"],
+  ENTREGUE:["Entregue","p-ent"],CANCELADO:["Cancelado","p-can"]};
+
+const S = {
+  perfil:"cliente", abaCliente:"cardapio", aberto:true, seq:3,
+  montando:{h:null,b:null,d:null,obs:""}, carrinho:[], pedidos:[], log:[],
+  comprovante:null, notificado:{}
+};
+const prod = c => PROD.find(p => p.c === c);
+const ing  = c => ING.find(i => i.c === c);
+
+/* ====== registro de regras ====== */
+function reg(tipo, cod, texto, detalhe){
+  S.log.push({t:tipo,c:cod,x:texto,d:detalhe||"",h:hhmm(new Date())});
+  if(S.log.length>60) S.log.shift();
+}
+function msgTxt(cod, subs){
+  const M = {
+    MSG10:"Não há atendimento aberto no momento. Consulte o local e o horário.",
+    MSG11:"Produto indisponível: {produto}.",
+    MSG12:"Cada lanche deve ter 1 hambúrguer e 1 batata.",
+    MSG13:"O pedido deve ter pelo menos 1 lanche.",
+    MSG14:"Pedido nº {numero} registrado. Valor total: {valor}.",
+    MSG15:"O pedido não pode ser alterado no aplicativo. Para mudar o lanche, cancele o pedido e registre um novo.",
+    MSG16:"Operação não permitida para a situação atual do pedido ({situacao}).",
+    MSG17:"Confirma o cancelamento do pedido nº {numero}? O valor pago não será reembolsado.",
+    MSG18:"Pedido nº {numero} cancelado.",
+    MSG21:"Pagamento confirmado. Acompanhe o pedido nº {numero}.",
+    MSG22:"Não há pedidos na fila de produção.",
+    MSG23:"Existe pedido anterior na fila: siga a ordem de chegada.",
+    MSG24:"Pedido nº {numero} já foi entregue em {dataHora}.",
+    MSG25:"Entrega do pedido nº {numero} registrada.",
+    MSG26:"Seu pedido nº {numero} está pronto! Retire no food truck com a sua senha.",
+    MSG28:"Compra nº {numero} registrada e estoque atualizado.",
+    MSG30:"Ingredientes do pedido cancelado devolvidos ao estoque."
+  };
+  let t = M[cod] || cod;
+  for(const k in (subs||{})) t = t.replace("{"+k+"}", subs[k]);
+  return t;
+}
+function msg(cod, subs, tipo){
+  const t = msgTxt(cod, subs);
+  reg(tipo||"m", cod, t);
+  toast(t);
+  return t;
+}
+
+/* ====== estoque e disponibilidade ====== */
+function disponivel(p, mult){
+  mult = mult || 1;
+  for(const c in p.f){ if(ing(+c).q < p.f[c]*mult) return false; }
+  return true;
+}
+function baixar(pedido){
+  const u = {};
+  pedido.itens.forEach(it => {
+    [it.h,it.b,it.d].filter(Boolean).forEach(cod => {
+      const p = prod(cod);
+      for(const c in p.f) u[c] = (u[c]||0) + p.f[c]*it.qtd;
+    });
+  });
+  for(const c in u) ing(+c).q -= u[c];
+  return u;
+}
+function repor(pedido){
+  const u = {};
+  pedido.itens.forEach(it => {
+    [it.h,it.b,it.d].filter(Boolean).forEach(cod => {
+      const p = prod(cod);
+      for(const c in p.f) u[c] = (u[c]||0) + p.f[c]*it.qtd;
+    });
+  });
+  for(const c in u) ing(+c).q += u[c];
+}
+
+/* ====== dados iniciais, para a tela não abrir vazia ====== */
+function item(h,b,d,qtd,obs){
+  const preco = prod(h).p + prod(b).p + (d ? prod(d).p : 0);
+  return {h,b,d,qtd:qtd||1,obs:obs||"",preco};
+}
+(function seed(){
+  const mk = (n, itens, sit, forma, min, entregue) => {
+    const dt = new Date(); dt.setMinutes(dt.getMinutes() - min);
+    const total = itens.reduce((s,it) => s + it.preco*it.qtd, 0);
+    const p = {num:n, itens, situacao:sit, total, dataHora:dt,
+      pagamento: forma ? {forma, valor:total, dataHora:dt} : null,
+      entrega: entregue ? {dataHora:new Date(dt.getTime()+18*60000)} : null};
+    S.pedidos.push(p);
+    if(forma) baixar(p);
+    if(sit === "CANCELADO") repor(p);
+    return p;
+  };
+  mk(1, [item("H1","B2","D2",2)], "ENTREGUE", "PIX", 95, true);
+  mk(2, [item("H2","B1","D1",1)], "CANCELADO", "CARTAO", 70, false);
+  mk(3, [item("H3","B2",null,1), item("H1","B1","D2",1)], "PAGO", "PIX", 12, false);
+  reg("r","RNG23","Fila montada na ordem de confirmação do pagamento.","Dados de demonstração");
+})();
+
+/* ====== ações do Cliente ====== */
+function escolher(k, c){
+  const campo = k === "H" ? "h" : k === "B" ? "b" : "d";
+  S.montando[campo] = S.montando[campo] === c ? null : c;
+  render();
+}
+function clonarSugerido(i){
+  const s = SUGERIDOS[i];
+  S.montando = {h:s.h, b:s.b, d:s.d, obs:""};
+  reg("r","Prototype","Lanche clonado do protótipo “"+s.n+"” do cardápio.",
+      "Padrão de projeto da 1ª etapa");
+  S.abaCliente = "cardapio"; render();
+}
+function addLanche(){
+  const m = S.montando;
+  if(!m.h || !m.b){ msg("MSG12",null,"b"); return; }
+  const indisp = [m.h,m.b,m.d].filter(Boolean).map(prod).find(p => !disponivel(p));
+  if(indisp){ msg("MSG11",{produto:indisp.n},"b"); return; }
+  reg("r","RNG12","Lanche válido: 1 hambúrguer + 1 batata"+(m.d?" + 1 bebida":"")+".");
+  S.carrinho.push(item(m.h, m.b, m.d, 1, m.obs));
+  S.montando = {h:null,b:null,d:null,obs:""};
+  const tot = S.carrinho.reduce((s,it)=>s+it.preco*it.qtd,0);
+  reg("r","RNG15","Valor recalculado pelo sistema: "+BRL(tot)+".");
+  render();
+}
+function removerLanche(i){ S.carrinho.splice(i,1); render(); }
+function confirmarPedido(){
+  if(!S.aberto){ msg("MSG10",null,"b"); return; }
+  reg("r","RNG11","Pedido registrado dentro do horário de atendimento cadastrado.");
+  if(!S.carrinho.length){ msg("MSG13",null,"b"); return; }
+  const total = S.carrinho.reduce((s,it)=>s+it.preco*it.qtd,0);
+  const p = {num: ++S.seq, itens: S.carrinho.slice(), situacao:"RECEBIDO",
+    total, dataHora:new Date(), pagamento:null, entrega:null};
+  S.pedidos.push(p); S.carrinho = [];
+  reg("r","RNG14","Senha "+p.num+" gerada pelo sistema para o pedido.");
+  msg("MSG14",{numero:p.num, valor:BRL(total)});
+  S.abaCliente = "pedidos"; render();
+}
+function pagar(num, forma){
+  const p = S.pedidos.find(x => x.num === num);
+  if(p.situacao !== "RECEBIDO"){
+    msg("MSG16",{situacao:SIT[p.situacao][0]},"b"); fecharModal(); return;
+  }
+  const falta = [];
+  p.itens.forEach(it => [it.h,it.b,it.d].filter(Boolean).forEach(c => {
+    if(!disponivel(prod(c), it.qtd) && !falta.includes(prod(c).n)) falta.push(prod(c).n);
+  }));
+  if(falta.length){ msg("MSG11",{produto:falta[0]},"b"); fecharModal(); return; }
+  p.situacao = "PAGO";
+  p.pagamento = {forma, valor:p.total, dataHora:new Date()};
+  reg("r","RNG19","Pagamento autorizado pela operadora · forma: "+(forma==="PIX"?"PIX":"Cartão")+".");
+  baixar(p);
+  reg("r","RNG28","Ingredientes baixados do estoque conforme a ficha técnica.");
+  reg("r","RNG20","Pedido "+p.num+" entrou na fila de produção.");
+  reg("r","RNG30","Comprovante emitido com o número do pedido (senha "+p.num+").");
+  msg("MSG21",{numero:p.num});
+  S.comprovante = p.num; fecharModal(); render();
+}
+function pedirCancelamento(num){
+  const p = S.pedidos.find(x => x.num === num);
+  if(!["RECEBIDO","PAGO"].includes(p.situacao)){
+    msg("MSG16",{situacao:SIT[p.situacao][0]},"b"); return;
+  }
+  reg("r","RNG17","Cancelamento permitido: pedido ainda não entrou em produção.");
+  abrirModal({
+    titulo:"Cancelar pedido nº "+p.num,
+    corpo: msgTxt("MSG17",{numero:p.num}),
+    nota: p.pagamento ? "O valor de "+BRL(p.total)+" permanece com a empresa e aparece em linha própria no relatório de fluxo de caixa (RNG21 e RNG35)." : "",
+    acoes:[
+      {rot:"Manter pedido", cls:"gh", fn:fecharModal},
+      {rot:"Cancelar pedido", cls:"dg", fn:()=>cancelar(num)}
+    ]
+  });
+}
+function cancelar(num){
+  const p = S.pedidos.find(x => x.num === num);
+  const erapago = p.situacao === "PAGO";
+  p.situacao = "CANCELADO";
+  if(erapago){
+    reg("r","RNG21","Sem reembolso: "+BRL(p.total)+" permanece com a empresa.");
+    repor(p);
+    reg("r","RNG22","Ingredientes do pedido devolvidos ao estoque.");
+    msg("MSG30");
+  }
+  msg("MSG18",{numero:p.num});
+  fecharModal(); render();
+}
+
+/* ====== ações da Produção ====== */
+const fila = () => S.pedidos.filter(p => ["PAGO","EM_PRODUCAO","PRONTO"].includes(p.situacao))
+  .sort((a,b) => a.pagamento.dataHora - b.pagamento.dataHora);
+function iniciar(num){
+  const f = fila().filter(p => p.situacao === "PAGO");
+  if(f.length && f[0].num !== num){ msg("MSG23",null,"b"); return; }
+  const p = S.pedidos.find(x => x.num === num);
+  p.situacao = "EM_PRODUCAO";
+  reg("r","RNG23","Produção iniciada na ordem de chegada da fila.");
+  reg("r","RNG24","Situação do pedido "+num+": Pago → Em produção.");
+  render();
+}
+function pronto(num){
+  const p = S.pedidos.find(x => x.num === num);
+  p.situacao = "PRONTO";
+  reg("r","RNG24","Situação do pedido "+num+": Em produção → Pronto.");
+  reg("r","RNG32","Cliente notificado de que o pedido está pronto.");
+  msg("MSG26",{numero:num});
+  S.notificado[num] = true; render();
+}
+function entregar(num){
+  const p = S.pedidos.find(x => x.num === num);
+  if(p.situacao === "ENTREGUE"){
+    msg("MSG24",{numero:num, dataHora:hhmm(p.entrega.dataHora)},"b"); return;
+  }
+  if(p.situacao !== "PRONTO"){ msg("MSG16",{situacao:SIT[p.situacao][0]},"b"); return; }
+  reg("r","RNG25","Entrega permitida: pedido está na situação Pronto.");
+  p.situacao = "ENTREGUE"; p.entrega = {dataHora:new Date()};
+  reg("r","RNG26","Pedido "+num+" marcado como entregue; nova entrega será recusada.");
+  msg("MSG25",{numero:num}); render();
+}
+
+/* ====== ações do Gerente ====== */
+function comprar(c){
+  const i = ing(c);
+  const qtd = i.min * 2;
+  i.q += qtd;
+  reg("r","RNG27","Compra registrada: +"+qtd+" "+i.u+" de "+i.n+".");
+  msg("MSG28",{numero: Math.floor(Math.random()*900)+100});
+  render();
+}
+
+/* ====== modal e aviso ====== */
+let modalAcoes = [];
+function abrirModal(cfg){
+  modalAcoes = cfg.acoes;
+  const el = document.createElement("div");
+  el.className = "scrim"; el.id = "scrim";
+  el.innerHTML = '<div class="modal" role="dialog" aria-modal="true" aria-label="'+
+    cfg.titulo.replace(/"/g,"")+'"><h3>'+cfg.titulo+'</h3><p>'+cfg.corpo+'</p>'+
+    (cfg.nota ? '<p class="sub">'+cfg.nota+'</p>' : '')+
+    '<div class="row" style="justify-content:flex-end">'+
+    cfg.acoes.map((a,i)=>'<button class="btn sm '+(a.cls||"")+'" data-mi="'+i+'">'+a.rot+'</button>').join("")+
+    '</div></div>';
+  document.body.appendChild(el);
+  el.addEventListener("click", e => {
+    const b = e.target.closest("[data-mi]");
+    if(b) modalAcoes[+b.dataset.mi].fn();
+    else if(e.target === el) fecharModal();
+  });
+  const f = el.querySelector("[data-mi]"); if(f) f.focus();
+}
+function fecharModal(){ const e = document.getElementById("scrim"); if(e) e.remove(); }
+let toastT;
+function toast(t){
+  let el = document.getElementById("toast");
+  if(el) el.remove();
+  el = document.createElement("div");
+  el.className = "toast"; el.id = "toast"; el.setAttribute("role","status");
+  el.textContent = t;
+  document.body.appendChild(el);
+  clearTimeout(toastT);
+  toastT = setTimeout(() => el.remove(), 4200);
+}
+
+/* ====== telas ====== */
+function esc(s){ return String(s).replace(/[&<>"]/g, c =>
+  ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+const pill = s => '<span class="pill '+SIT[s][1]+'">'+SIT[s][0]+'</span>';
+const descItem = it => prod(it.h).n+" + "+prod(it.b).n+(it.d ? " + "+prod(it.d).n : "");
+
+function telaCardapio(){
+  const m = S.montando;
+  const grupo = (k, tit, rot) => {
+    const lista = PROD.filter(p => p.k === k);
+    const campo = k === "H" ? "h" : k === "B" ? "b" : "d";
+    return '<div><p class="eyebrow" style="margin-bottom:6px">'+tit+'</p>'+
+      lista.map(p => {
+        const ok = disponivel(p);
+        return '<button class="opt" data-act="esc" data-k="'+k+'" data-c="'+p.c+'"'+
+          (ok?"":" disabled")+' aria-pressed="'+(m[campo]===p.c)+'">'+
+          '<span><span class="nm">'+esc(p.n)+'</span>'+
+          '<span class="sub" style="display:block">'+esc(ok ? p.t : "Indisponível (MSG11)")+'</span></span>'+
+          '<span class="pz">'+BRL(p.p)+'</span></button>';
+      }).join("")+
+      (rot ? '<button class="opt" data-act="esc" data-k="D" data-c="" aria-pressed="'+
+        (m.d===null)+'"><span class="nm">Sem bebida</span></button>' : '')+'</div>';
+  };
+  const parcial = (m.h?prod(m.h).p:0)+(m.b?prod(m.b).p:0)+(m.d?prod(m.d).p:0);
+  return `
+  <div class="card" style="background:var(--soft);border-style:dashed">
+    <p class="eyebrow">UC20 · Local e horário</p>
+    <p style="font-weight:600;font-size:13.5px">${esc(LOCAL.end)}</p>
+    <p class="sub">Hoje, ${LOCAL.ini} às ${LOCAL.fim} · ${S.aberto
+      ? '<span style="color:var(--ok);font-weight:700">atendimento aberto</span>'
+      : '<span style="color:var(--warn);font-weight:700">fechado agora</span>'}</p>
+  </div>
+  <div>
+    <p class="eyebrow" style="margin-bottom:6px">Lanches sugeridos</p>
+    <div style="display:flex;gap:7px;flex-wrap:wrap">
+      ${SUGERIDOS.map((s,i) => {
+        const v = prod(s.h).p + prod(s.b).p + (s.d?prod(s.d).p:0);
+        return '<button class="btn gh sm" data-act="sug" data-i="'+i+'">'+
+          esc(s.n)+' · '+BRL(v)+'</button>';
+      }).join("")}
+    </div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:11px">
+    ${grupo("H","Hambúrguer (obrigatório)")}
+    ${grupo("B","Batata (obrigatória)")}
+    ${grupo("D","Bebida (opcional)", true)}
+  </div>
+  <label class="sub" style="display:block">Observação para a cozinha
+    <input id="obs" value="${esc(m.obs)}" placeholder="ex.: sem cebola"
+      style="width:100%;margin-top:4px;padding:9px 10px;border:1px solid var(--edge);
+      border-radius:8px;background:var(--card);color:var(--fg);font:inherit">
+  </label>
+  <button class="btn w" data-act="add"${(m.h&&m.b)?"":" disabled"}>
+    Adicionar lanche${parcial?" · "+BRL(parcial):""}</button>`;
+}
+
+function telaCarrinho(){
+  if(!S.carrinho.length) return '<div class="empty">Nenhum lanche adicionado.<br>'+
+    'Monte um lanche no cardápio para começar o pedido.</div>';
+  const tot = S.carrinho.reduce((s,it)=>s+it.preco*it.qtd,0);
+  return '<div style="display:flex;flex-direction:column;gap:9px">'+
+    S.carrinho.map((it,i) =>
+      '<div class="card"><div class="row"><span class="nm" style="font-weight:600;font-size:13.5px">'+
+      esc(descItem(it))+'</span><span class="pz num" style="font-family:var(--mono)">'+
+      BRL(it.preco)+'</span></div>'+
+      (it.obs?'<p class="sub">Obs.: '+esc(it.obs)+'</p>':'')+
+      '<button class="btn gh sm" data-act="rm" data-i="'+i+'" style="margin-top:8px">Remover</button></div>'
+    ).join("")+
+    '<div class="row" style="padding-top:4px;border-top:2px solid var(--edge)">'+
+    '<b>Total</b><b class="num" style="font-family:var(--mono);font-size:17px">'+BRL(tot)+'</b></div>'+
+    '<p class="sub">O valor é calculado pelo sistema (RNG15). Depois de confirmado, '+
+    'o pedido não pode ser alterado no aplicativo (RNG16).</p>'+
+    '<button class="btn w" data-act="conf">Confirmar pedido</button></div>';
+}
+
+function telaPedidos(){
+  const meus = S.pedidos.slice().sort((a,b) => b.num - a.num);
+  if(!meus.length) return '<div class="empty">Você ainda não tem pedidos.</div>';
+  return '<p class="sub">Você só enxerga os seus próprios pedidos (RNG31).</p>'+
+    meus.map(p => {
+      const podeCancelar = ["RECEBIDO","PAGO"].includes(p.situacao);
+      return '<div class="card"><div class="row" style="margin-bottom:6px">'+
+        '<span><span class="eyebrow">Senha</span> <b class="num" style="font-size:17px;font-family:var(--mono)">'+
+        p.num+'</b></span>'+pill(p.situacao)+'</div>'+
+        p.itens.map(it => '<p class="sub">'+it.qtd+'× '+esc(descItem(it))+'</p>').join("")+
+        '<div class="row" style="margin-top:8px"><span class="sub">'+hhmm(p.dataHora)+
+        (p.pagamento?' · '+(p.pagamento.forma==="PIX"?"PIX":"Cartão"):' · aguardando pagamento')+
+        '</span><b class="num" style="font-family:var(--mono)">'+BRL(p.total)+'</b></div>'+
+        (S.notificado[p.num] && p.situacao==="PRONTO"
+          ? '<p class="sub" style="color:var(--accent);font-weight:600;margin-top:6px">'+
+            msgTxt("MSG26",{numero:p.num})+'</p>' : '')+
+        (p.situacao==="ENTREGUE"
+          ? '<p class="sub" style="margin-top:6px">Entregue às '+hhmm(p.entrega.dataHora)+'.</p>':'')+
+        '<div class="row" style="margin-top:9px;justify-content:flex-start;gap:7px">'+
+        (p.situacao==="RECEBIDO"
+          ? '<button class="btn sm" data-act="pag" data-n="'+p.num+'">Pagar</button>':'')+
+        (podeCancelar
+          ? '<button class="btn gh sm" data-act="can" data-n="'+p.num+'">Cancelar</button>':'')+
+        '</div></div>';
+    }).join("");
+}
+
+function telaComprovante(){
+  const p = S.pedidos.find(x => x.num === S.comprovante);
+  if(!p) return "";
+  return '<div class="card" style="text-align:center;border-color:var(--accent)">'+
+    '<p class="eyebrow">UC22 · Comprovante do pedido</p>'+
+    '<p class="senha num">'+p.num+'</p>'+
+    '<p class="sub">Esta é a sua senha de retirada (RNG14 e RNG30).</p>'+
+    '<p style="margin-top:8px;font-weight:600">'+BRL(p.total)+' · '+
+    (p.pagamento.forma==="PIX"?"PIX":"Cartão")+' · '+hhmm(p.pagamento.dataHora)+'</p>'+
+    '<button class="btn gh sm" data-act="fechacomp" style="margin-top:11px">Fechar</button></div>';
+}
+
+function telaCliente(){
+  const abas = [["cardapio","Cardápio","☰"],["carrinho","Pedido","▤"],["pedidos","Meus pedidos","◷"]];
+  const corpo = S.abaCliente==="cardapio" ? telaCardapio()
+    : S.abaCliente==="carrinho" ? telaCarrinho() : telaPedidos();
+  const fone = '<div class="phone"><div class="ph-bar"><span>'+hhmm(new Date())+'</span>'+
+    '<span>Iron Burguer</span><span>100%</span></div>'+
+    '<div class="ph-body">'+(S.comprovante?telaComprovante():"")+corpo+'</div>'+
+    '<div class="ph-nav" role="tablist">'+abas.map(a =>
+      '<button role="tab" data-act="aba" data-a="'+a[0]+'" aria-selected="'+
+      (S.abaCliente===a[0])+'"><span class="ic">'+a[2]+'</span>'+a[1]+
+      (a[0]==="carrinho"&&S.carrinho.length?" ("+S.carrinho.length+")":"")+'</button>'
+    ).join("")+'</div></div>';
+  const passos = [
+    ["Monte um lanche no cardápio e confirme o pedido.","RNG12","RNG14","RNG15"],
+    ["Pague com PIX ou cartão: o estoque é baixado e sai a senha.","RNG19","RNG28","RNG30"],
+    ["Troque para <b>Produção</b> e puxe o próximo da fila.","RNG23"],
+    ["Marque pronto e registre a entrega.","RNG32","RNG25"],
+    ["Tente entregar o mesmo pedido de novo: o sistema recusa.","RNG26","MSG24"],
+    ["Volte ao Cliente e cancele um pedido já pago.","RNG17","RNG21","RNG22"],
+    ["Em <b>Gerente</b>, veja o cancelado em linha própria no caixa.","RNG35"],
+    ["Desligue <b>Atendimento aberto</b> e tente pedir.","RNG11","MSG10"]
+  ];
+  const roteiro = '<div class="roteiro"><div class="panel-h"><h2>Roteiro de demonstração</h2>'+
+    '<span class="uc">8 passos</span></div><div class="panel-b">'+
+    '<p class="sub">Siga na ordem para mostrar as regras da v5.0 funcionando. '+
+    'Cada passo acende o código correspondente no registro ao lado.</p><ol>'+
+    passos.map(p => '<li>'+p[0]+'<br>'+p.slice(1).map(c=>'<code>'+c+'</code>').join(" ")+
+      '</li>').join("")+'</ol></div></div>';
+  return '<div class="cliente">'+fone+roteiro+'</div>';
+}
+
+function telaProducao(){
+  const f = fila();
+  const corpo = !f.length
+    ? '<div class="empty">'+msgTxt("MSG22")+'</div>'
+    : f.map((p,idx) => {
+      const prim = p.situacao==="PAGO" && f.filter(x=>x.situacao==="PAGO")[0].num===p.num;
+      return '<div class="card'+(idx===0?" sel":"")+'">'+
+        '<div class="row"><span><span class="eyebrow">Senha</span> '+
+        '<b class="num" style="font-size:21px;font-family:var(--mono)">'+p.num+'</b></span>'+
+        pill(p.situacao)+'</div>'+
+        '<p class="sub" style="margin-top:5px">Pago às '+hhmm(p.pagamento.dataHora)+'</p>'+
+        p.itens.map(it => '<p style="font-size:13px;margin-top:5px">'+it.qtd+'× '+
+          esc(descItem(it))+(it.obs?' <i style="color:var(--accent)">· '+esc(it.obs)+'</i>':'')+
+          '</p>').join("")+
+        '<div class="row" style="margin-top:10px;justify-content:flex-start;gap:7px">'+
+        (p.situacao==="PAGO"
+          ? '<button class="btn sm'+(prim?"":" gh")+'" data-act="ini" data-n="'+p.num+'">Iniciar produção</button>':'')+
+        (p.situacao==="EM_PRODUCAO"
+          ? '<button class="btn sm" data-act="pro" data-n="'+p.num+'">Marcar pronto</button>':'')+
+        (p.situacao==="PRONTO"
+          ? '<button class="btn sm" data-act="ent" data-n="'+p.num+'">Registrar entrega</button>':'')+
+        '</div></div>';
+    }).join("");
+  const entregues = S.pedidos.filter(p => p.situacao==="ENTREGUE");
+  return '<div class="panel"><div class="panel-h"><h2>Fila de produção</h2>'+
+    '<span class="uc">UC13 · UC14 · UC15</span></div><div class="panel-b">'+
+    '<p class="sub">Os pedidos aparecem na ordem de confirmação do pagamento (RNG23). '+
+    'A entrega só é aceita na situação Pronto e uma única vez (RNG25 e RNG26).</p>'+
+    '<div style="display:flex;flex-direction:column;gap:11px">'+corpo+'</div>'+
+    (entregues.length ? '<div><p class="eyebrow" style="margin-bottom:6px">Entregues hoje</p>'+
+      entregues.map(p => '<p class="sub">Senha '+p.num+' · entregue às '+
+        hhmm(p.entrega.dataHora)+' · '+BRL(p.total)+
+        ' <button class="btn gh sm" data-act="ent" data-n="'+p.num+
+        '" style="margin-left:6px">Tentar entregar de novo</button></p>').join("")+
+      '</div>' : '')+
+    '</div></div>';
+}
+
+function telaGerente(){
+  const pagos = S.pedidos.filter(p => p.pagamento);
+  const validos = pagos.filter(p => p.situacao !== "CANCELADO");
+  const cancel = pagos.filter(p => p.situacao === "CANCELADO");
+  const porForma = f => validos.filter(p => p.pagamento.forma===f)
+    .reduce((s,p)=>s+p.total,0);
+  const totCancel = cancel.reduce((s,p)=>s+p.total,0);
+  const totGeral = pagos.reduce((s,p)=>s+p.total,0);
+  const baixo = ING.filter(i => i.q < i.min);
+
+  const caixa = '<div class="panel"><div class="panel-h"><h2>Fluxo de caixa</h2>'+
+    '<span class="uc">UC25 · RNG35</span></div><div class="panel-b">'+
+    '<div class="scroll"><table><thead><tr><th>Origem</th><th class="n">Pedidos</th>'+
+    '<th class="n">Valor</th></tr></thead><tbody>'+
+    '<tr><td>PIX</td><td class="n">'+validos.filter(p=>p.pagamento.forma==="PIX").length+
+    '</td><td class="n">'+BRL(porForma("PIX"))+'</td></tr>'+
+    '<tr><td>Cartão</td><td class="n">'+validos.filter(p=>p.pagamento.forma==="CARTAO").length+
+    '</td><td class="n">'+BRL(porForma("CARTAO"))+'</td></tr>'+
+    '<tr><td style="color:var(--warn)">Pedidos cancelados sem reembolso</td>'+
+    '<td class="n">'+cancel.length+'</td><td class="n">'+BRL(totCancel)+'</td></tr>'+
+    '<tr class="tot"><td>Total recebido</td><td class="n">'+pagos.length+
+    '</td><td class="n">'+BRL(totGeral)+'</td></tr>'+
+    '</tbody></table></div>'+
+    '<p class="sub">Os pedidos cancelados entram no relatório em linha própria: o valor '+
+    'pago permanece com a empresa (RNG21) e precisa aparecer no caixa (RNG35).</p>'+
+    '</div></div>';
+
+  const rel = '<div class="panel"><div class="panel-h"><h2>Pedidos e entregas</h2>'+
+    '<span class="uc">UC24 · RNG34</span></div><div class="panel-b">'+
+    '<div class="scroll"><table><thead><tr><th>Senha</th><th>Hora</th><th>Situação</th>'+
+    '<th class="n">Valor</th></tr></thead><tbody>'+
+    (S.pedidos.length ? S.pedidos.slice().sort((a,b)=>b.num-a.num).map(p =>
+      '<tr><td class="n">'+p.num+'</td><td>'+hhmm(p.dataHora)+'</td><td>'+pill(p.situacao)+
+      '</td><td class="n">'+BRL(p.total)+'</td></tr>').join("")
+      : '<tr><td colspan="4">'+msgTxt("MSG03")+'</td></tr>')+
+    '</tbody></table></div></div></div>';
+
+  const est = '<div class="panel"><div class="panel-h"><h2>Estoque de ingredientes</h2>'+
+    '<span class="uc">UC26 · RNG36</span></div><div class="panel-b">'+
+    (baixo.length ? '<p class="sub" style="color:var(--warn);font-weight:600">'+
+      baixo.length+' ingrediente(s) abaixo da quantidade mínima.</p>' : '')+
+    '<div class="scroll"><table><thead><tr><th>Ingrediente</th><th class="n">Estoque</th>'+
+    '<th class="n">Mínimo</th><th></th></tr></thead><tbody>'+
+    ING.map(i => {
+      const low = i.q < i.min;
+      return '<tr'+(low?' style="background:var(--warnbg)"':'')+'><td>'+esc(i.n)+
+        '</td><td class="n">'+i.q+' '+i.u+'</td><td class="n">'+i.min+' '+i.u+'</td>'+
+        '<td class="n">'+(low?'<button class="btn sm" data-act="cmp" data-c="'+i.c+
+        '">Comprar</button>':'')+'</td></tr>';
+    }).join("")+
+    '</tbody></table></div></div></div>';
+
+  return '<div style="display:flex;flex-direction:column;gap:14px">'+
+    '<div class="cols">'+caixa+rel+'</div>'+est+'</div>';
+}
+
+function render(){
+  document.querySelectorAll("[data-perfil]").forEach(b =>
+    b.setAttribute("aria-selected", String(b.dataset.perfil === S.perfil)));
+  const sw = document.getElementById("swAtend");
+  sw.setAttribute("aria-pressed", String(S.aberto));
+  sw.classList.toggle("off", !S.aberto);
+  sw.querySelector("span").textContent = S.aberto ? "Atendimento aberto" : "Atendimento fechado";
+  document.getElementById("stage").innerHTML =
+    S.perfil === "cliente" ? telaCliente()
+    : S.perfil === "producao" ? telaProducao() : telaGerente();
+  document.getElementById("log").innerHTML = S.log.map(e =>
+    '<div class="ent '+e.t+'"><code>'+esc(e.c)+'</code><span class="tx">'+esc(e.x)+
+    (e.d?'<b>'+esc(e.d)+'</b>':'')+'</span></div>').join("");
+}
+
+/* ====== eventos ====== */
+document.addEventListener("click", e => {
+  const perfil = e.target.closest("[data-perfil]");
+  if(perfil){ S.perfil = perfil.dataset.perfil; render(); return; }
+  if(e.target.closest("#swAtend")){
+    S.aberto = !S.aberto;
+    reg("r","RNG11", S.aberto ? "Atendimento aberto: pedidos podem ser registrados."
+      : "Atendimento fechado: o registro de pedido será recusado.");
+    render(); return;
+  }
+  const b = e.target.closest("[data-act]");
+  if(!b) return;
+  const a = b.dataset.act;
+  const obs = document.getElementById("obs");
+  if(obs) S.montando.obs = obs.value;
+  if(a==="aba"){ S.abaCliente = b.dataset.a; render(); }
+  else if(a==="esc"){ escolher(b.dataset.k, b.dataset.c || null); }
+  else if(a==="sug"){ clonarSugerido(+b.dataset.i); }
+  else if(a==="add"){ addLanche(); }
+  else if(a==="rm"){ removerLanche(+b.dataset.i); }
+  else if(a==="conf"){ confirmarPedido(); }
+  else if(a==="can"){ pedirCancelamento(+b.dataset.n); }
+  else if(a==="fechacomp"){ S.comprovante = null; render(); }
+  else if(a==="ini"){ iniciar(+b.dataset.n); }
+  else if(a==="pro"){ pronto(+b.dataset.n); }
+  else if(a==="ent"){ entregar(+b.dataset.n); }
+  else if(a==="cmp"){ comprar(+b.dataset.c); }
+  else if(a==="pag"){
+    const n = +b.dataset.n;
+    abrirModal({titulo:"Pagamento do pedido nº "+n,
+      corpo:"O pagamento é feito no aplicativo, por cartão ou PIX, com autorização da Operadora de Pagamento (RNG19).",
+      nota:"", acoes:[
+        {rot:"PIX", fn:()=>pagar(n,"PIX")},
+        {rot:"Cartão", fn:()=>pagar(n,"CARTAO")},
+        {rot:"Voltar", cls:"gh", fn:fecharModal}
+      ]});
+  }
+});
+document.addEventListener("keydown", e => { if(e.key === "Escape") fecharModal(); });
+render();
+</script>
