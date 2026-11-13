@@ -17,7 +17,7 @@ cliente quem consulta o cardápio, monta o pedido, paga e acompanha a produção
 | --- | --- |
 | `DAN_Iron_Burguer_v8.docx` e `.pdf` | Documento de Análise de Negócio |
 | `DDR_Iron_Burguer_v8.docx` e `.pdf` | Documento de Definição de Requisitos |
-| [`diagramas/`](diagramas) | Diagramas em PNG; os usados nos documentos estão em `diagramas/v6/` |
+| [`diagramas/v6/`](diagramas/v6) | Diagramas dos documentos em PNG: EAS, casos de uso, classes, organograma e os 26 de sequência |
 | [`apresentacao/`](apresentacao) | Apresentação sobre Padrões de Projeto (GoF) |
 
 ### Documentos
