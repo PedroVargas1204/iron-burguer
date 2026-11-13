@@ -17,7 +17,7 @@ cliente quem consulta o cardápio, monta o pedido, paga e acompanha a produção
 | --- | --- |
 | `DAN_Iron_Burguer_v8.pdf` | Documento de Análise de Negócio |
 | `DDR_Iron_Burguer_v8.pdf` | Documento de Definição de Requisitos |
-| [`docs/`](docs) | Versões `.docx` do DAN e do DDR, diagramas em PNG e apresentação sobre Padrões de Projeto |
+| [`docs/`](docs) | Versões `.docx` do DAN e do DDR, diagramas em PNG e a apresentação de Design Patterns em HTML |
 
 Conteúdo de `docs/`:
 
@@ -25,7 +25,7 @@ Conteúdo de `docs/`:
 | --- | --- |
 | `DAN_Iron_Burguer_v8.docx` e `DDR_Iron_Burguer_v8.docx` | Documentos editáveis |
 | [`diagramas/`](docs/diagramas) | Diagramas em PNG: EAS, casos de uso, classes, organograma e os 26 de sequência |
-| `Design_Patterns_Iron_Burguer.html` | Apresentação sobre Padrões de Projeto (GoF) |
+| `Design_Patterns_Iron_Burguer.html` | Apresentação do trabalho de Design Patterns (ver abaixo) |
 
 ### Documentos
 
@@ -49,18 +49,25 @@ Números do modelo: 15 problemas, 15 soluções, 26 funcionalidades, 26 casos de
 20 classes, 5 enumerações, 36 regras de negócio e 30 mensagens. A numeração é 1:1 entre funcionalidade e caso de uso — **F*n*** corresponde
 sempre a **UC*n***.
 
-### Apresentação
+---
 
-`docs/Design_Patterns_Iron_Burguer.html` abre em qualquer navegador. Use as **setas**
-para navegar, **N** para as notas do orador e **Ctrl+P** para gerar um PDF. São 15 slides
-sobre quatro padrões do catálogo GoF, aplicados ao projeto:
+## Trabalho de Design Patterns
 
-| Padrão | Categoria | Onde entra |
+Atividade separada da entrega do DAN e do DDR: pesquisa em grupo sobre categorias e padrões
+de projeto do catálogo GoF, apresentada em **25/11/2026** (até 15 slides e 20 minutos). Os
+exemplos usam o modelo do aplicativo Iron Burguer.
+
+| Arquivo | Conteúdo |
+| --- | --- |
+| `Design_Patterns_Iron_Burguer.pdf` | Apresentação em PDF, 15 slides |
+| `docs/Design_Patterns_Iron_Burguer.html` | A mesma apresentação, com notas do orador: **setas** para navegar, **N** para as notas e **Ctrl+P** para gerar o PDF |
+
+| Padrão | Categoria | Exemplo no Iron Burguer |
 | --- | --- | --- |
-| Prototype | Criacional | Lanches sugeridos clonados no app (UC08) |
-| Singleton | Criacional | Fila de produção e numeração da senha (UC13) |
-| Command | Comportamental | Operações do pedido dentro da fila (UC11, UC13) |
-| State | Comportamental | Situações do pedido e transições (UC11, UC15) |
+| Prototype | Criacional | Incluir um produto a partir de outro, com a ficha técnica (UC01, RNG02) |
+| Singleton | Criacional | Fila de produção única para o Cliente e a Produção (UC12, UC13) |
+| Command | Comportamental | Baixa de estoque desfeita no cancelamento de pedido pago (UC17, UC18) |
+| State | Comportamental | Situações do pedido e as operações permitidas em cada uma (UC11, UC14, UC15) |
 
 ---
 
@@ -92,7 +99,7 @@ Regras definidas em sala e aplicadas em todo o modelo:
 
 | Data | Objeto |
 | --- | --- |
-| 24/11/2026 | Apresentação sobre Padrões de Projeto |
+| 25/11/2026 | Apresentação do trabalho de Design Patterns |
 | 01/12/2026 | Entrega do DAN e do DDR atualizados |
 | 02/12/2026 | Apresentação do trabalho atualizado |
 
