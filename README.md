@@ -15,10 +15,17 @@ cliente quem consulta o cardápio, monta o pedido, paga e acompanha a produção
 
 | Arquivo ou pasta | Conteúdo |
 | --- | --- |
-| `DAN_Iron_Burguer_v8.docx` e `.pdf` | Documento de Análise de Negócio |
-| `DDR_Iron_Burguer_v8.docx` e `.pdf` | Documento de Definição de Requisitos |
-| [`diagramas/v6/`](diagramas/v6) | Diagramas dos documentos em PNG: EAS, casos de uso, classes, organograma e os 26 de sequência |
-| [`apresentacao/`](apresentacao) | Apresentação sobre Padrões de Projeto (GoF) |
+| `DAN_Iron_Burguer_v8.pdf` | Documento de Análise de Negócio |
+| `DDR_Iron_Burguer_v8.pdf` | Documento de Definição de Requisitos |
+| [`docs/`](docs) | Versões `.docx` do DAN e do DDR, diagramas em PNG e apresentação sobre Padrões de Projeto |
+
+Conteúdo de `docs/`:
+
+| Arquivo ou pasta | Conteúdo |
+| --- | --- |
+| `DAN_Iron_Burguer_v8.docx` e `DDR_Iron_Burguer_v8.docx` | Documentos editáveis |
+| [`diagramas/`](docs/diagramas) | Diagramas em PNG: EAS, casos de uso, classes, organograma e os 26 de sequência |
+| `Design_Patterns_Iron_Burguer.html` | Apresentação sobre Padrões de Projeto (GoF) |
 
 ### Documentos
 
@@ -44,7 +51,7 @@ sempre a **UC*n***.
 
 ### Apresentação
 
-`apresentacao/Design_Patterns_Iron_Burguer.html` abre em qualquer navegador. Use as **setas**
+`docs/Design_Patterns_Iron_Burguer.html` abre em qualquer navegador. Use as **setas**
 para navegar, **N** para as notas do orador e **Ctrl+P** para gerar um PDF. São 15 slides
 sobre quatro padrões do catálogo GoF, aplicados ao projeto:
 
