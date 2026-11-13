@@ -18,7 +18,6 @@ cliente quem consulta o cardápio, monta o pedido, paga e acompanha a produção
 | [`documentos/`](documentos) | DAN e DDR versão 7.0, em `.docx` e `.pdf` |
 | [`diagramas/`](diagramas) | Os 36 diagramas em PNG, em resolução ampliada |
 | [`apresentacao/`](apresentacao) | Apresentação sobre Padrões de Projeto (GoF) |
-| [`prototipo/`](prototipo) | Protótipo navegável do aplicativo |
 | [`ferramentas/v7`](ferramentas/v7) | Scripts que geram a v7 a partir da v6 |
 
 ### Documentos
@@ -58,13 +57,6 @@ sobre quatro padrões do catálogo GoF, aplicados ao projeto:
 | Command | Comportamental | Operações do pedido dentro da fila (UC11, UC13) |
 | State | Comportamental | Situações do pedido e transições (UC11, UC15) |
 
-### Protótipo
-
-`prototipo/Prototipo_Iron_Burguer.html` abre em qualquer navegador e simula o aplicativo nos
-três perfis — Cliente, Produção e Gerente. Um painel lateral mostra, a cada ação, **qual regra
-de negócio e qual mensagem do DDR** foram aplicadas. É uma demonstração de interface: a lógica
-das regras roda de verdade, mas não há banco de dados nem operadora de pagamento real.
-
 ---
 
 ## O que mudou na versão 5.0
@@ -103,12 +95,6 @@ Regras definidas em sala e aplicadas em todo o modelo:
 
 ## Versões anteriores
 
-Os arquivos na raiz do repositório (`DAN_Iron_Burguer_Atualizado.docx`,
-`DDR_Iron_Burguer_Atualizado.docx`, `Iron_Burguer_Apresentacao_DAN_DDR.pdf` e os resumos)
-são da **1ª etapa** e foram mantidos como histórico. A branch `review1` guarda uma segunda
-frente de trabalho do grupo, cuja organização da EAS, numeração 1:1 e estrutura das
-especificações de caso de uso foram incorporadas à versão 5.0.
-
-**Para a entrega, use os arquivos `documentos/DAN_Iron_Burguer_v7.*` e
-`documentos/DDR_Iron_Burguer_v7.*`.** As versões 5.0 e 6.0 ficam na mesma pasta como
-histórico.
+- `DAN_Iron_Burguer_Entrega01.docx` e `DDR_Iron_Burguer_Entrega01.docx`, na raiz: documentos da 1ª etapa.
+- `documentos/`: versões 5.0, 6.0 e 7.0 do DAN e do DDR.
+- Branch `review1`: segunda frente de trabalho do grupo.
