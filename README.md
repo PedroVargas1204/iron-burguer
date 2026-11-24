@@ -54,13 +54,27 @@ sempre a **UC*n***.
 ## Trabalho de Design Patterns
 
 Atividade separada da entrega do DAN e do DDR: pesquisa em grupo sobre categorias e padrões
-de projeto do catálogo GoF, apresentada em **25/11/2026** (até 15 slides e 20 minutos). Os
+de projeto do catálogo GoF, apresentada em **25/11/2026** (cerca de 20 minutos). Os
 exemplos usam o modelo do aplicativo Iron Burguer.
+
+Atendendo ao pedido do professor, cada padrão traz dois **diagramas de classe**: o da
+**estrutura padrão** (participantes do GoF, com base no quadro "Estrutura" do Refactoring.Guru)
+e o da **implementação** no Iron Burguer, com as mesmas classes do código mostrado no slide
+seguinte. Com eles, a apresentação passou de 15 para **23 slides**.
 
 | Arquivo | Conteúdo |
 | --- | --- |
-| `Design_Patterns_Iron_Burguer.pdf` | Apresentação em PDF, 15 slides |
-| `docs/Design_Patterns_Iron_Burguer.html` | A mesma apresentação, com notas do orador: **setas** para navegar, **N** para as notas e **Ctrl+P** para gerar o PDF |
+| `Design_Patterns_Iron_Burguer.pdf` | Apresentação em PDF, 23 slides: para cada padrão, conceito, estrutura padrão, implementação e código |
+| `Design_Patterns_Guia_de_Estudo.pdf` | Divisão da apresentação entre os integrantes, fala sugerida para cada slide, como ler os diagramas UML e perguntas prováveis com respostas |
+| [`docs/diagramas/design_patterns/`](docs/diagramas/design_patterns) | Os 8 diagramas de classe em PNG (`*_estrutura.png` e `*_implementacao.png`) |
+| `docs/Design_Patterns_Iron_Burguer.html` | Versão anterior da apresentação (15 slides, sem os diagramas de classe), com notas do orador: **setas** para navegar, **N** para as notas |
+
+| Integrante | Slides |
+| --- | --- |
+| Gabriel | 1 a 5 (abertura, conceitos e criacionais) e 23 (síntese) |
+| Guilherme | 6 a 13 (Prototype e Singleton) |
+| Pedro Rebello | 14 a 18 (comportamentais e Command) |
+| Pedro Vargas | 19 a 22 (State) |
 
 | Padrão | Categoria | Exemplo no Iron Burguer |
 | --- | --- | --- |
