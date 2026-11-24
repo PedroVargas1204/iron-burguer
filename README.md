@@ -54,16 +54,36 @@ sempre a **UC*n***.
 ## Trabalho de Design Patterns
 
 Atividade separada da entrega do DAN e do DDR: pesquisa em grupo sobre categorias e padrões
-de projeto do catálogo GoF, apresentada em **25/11/2026** (cerca de 20 minutos). Os
+de projeto do catálogo GoF, apresentada em **25/11/2026** (cerca de 15 minutos). Os
 exemplos usam o modelo do aplicativo Iron Burguer.
 
-Atendendo ao pedido do professor, cada padrão traz dois **diagramas de classe**: o da
-**estrutura padrão** (participantes do GoF, com base no quadro "Estrutura" do Refactoring.Guru)
-e o da **implementação** no Iron Burguer, com as mesmas classes do código mostrado no slide
-seguinte. Com eles, a apresentação passou de 15 para **23 slides**.
+O grupo apresenta **uma categoria, a dos padrões comportamentais, e dois padrões: Command e
+State**. Os dois atacam problemas do enunciado: o estoque de um pedido pago que é cancelado e
+o pedido entregue duas vezes. Atendendo ao pedido do professor, cada padrão traz dois
+**diagramas de classe**: o da **estrutura padrão** (participantes do GoF, com base no quadro
+"Estrutura" do Refactoring.Guru) e o da **implementação** no Iron Burguer, com as mesmas
+classes do código mostrado no slide seguinte. São **14 slides**.
 
 | Arquivo | Conteúdo |
 | --- | --- |
+| `Design_Patterns_Iron_Burguer.pdf` | Apresentação em PDF, 14 slides: para cada padrão, conceito, estrutura padrão, implementação e código |
+| `Design_Patterns_Guia_de_Estudo.pdf` | Divisão da apresentação entre os integrantes, fala sugerida para cada slide, como ler os diagramas UML e perguntas prováveis com respostas |
+| [`docs/diagramas/design_patterns/`](docs/diagramas/design_patterns) | Os 4 diagramas de classe em PNG (`*_estrutura.png` e `*_implementacao.png`) |
+| `docs/Design_Patterns_Iron_Burguer.html` | Versão anterior da apresentação (15 slides, com quatro padrões de duas categorias e sem os diagramas de classe) |
+
+| Integrante | Slides |
+| --- | --- |
+| Gabriel | 1 a 4 (abertura, escolha da categoria e conceitos) e 14 (síntese) |
+| Guilherme | 5 a 7 (padrões comportamentais, conceito e estrutura do Command) |
+| Pedro Rebello | 8 e 9 (classes e código do Command no Iron Burguer) |
+| Pedro Vargas | 10 a 13 (State) |
+
+| Padrão | Categoria | Exemplo no Iron Burguer |
+| --- | --- | --- |
+| Command | Comportamental | Baixa de estoque desfeita no cancelamento de pedido pago (UC17, UC18) |
+| State | Comportamental | Situações do pedido e as operações permitidas em cada uma (UC11, UC14, UC15) |
+
+--- | --- |
 | `Design_Patterns_Iron_Burguer.pdf` | Apresentação em PDF, 23 slides: para cada padrão, conceito, estrutura padrão, implementação e código |
 | `Design_Patterns_Guia_de_Estudo.pdf` | Divisão da apresentação entre os integrantes, fala sugerida para cada slide, como ler os diagramas UML e perguntas prováveis com respostas |
 | [`docs/diagramas/design_patterns/`](docs/diagramas/design_patterns) | Os 8 diagramas de classe em PNG (`*_estrutura.png` e `*_implementacao.png`) |
